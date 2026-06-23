@@ -109,6 +109,7 @@
     <input type="password" id="groq-key" placeholder="gsk_..." />
     <div class="key-hint">Gratuit sur <a href="https://console.groq.com" target="_blank">console.groq.com</a></div>
     <button class="save-btn" onclick="saveKey()">Enregistrer</button>
+    <button class="save-btn" id="test-btn" onclick="testKey()" style="margin-top:6px;background:var(--surface2);border:1px solid var(--border);color:var(--text)">Tester la clé</button>
   </div>
 </div>
 
@@ -306,12 +307,33 @@ function toggleKey(el) {
 }
 
 function saveKey() {
-  const val = document.getElementById("groq-key").value.trim();
+  const val = document.getElementById("groq-key").value.replace(/\s+/g, "").trim();
   if (!val) return;
   localStorage.setItem("groq_key", val);
   const btn = document.querySelector(".save-btn");
-  btn.textContent = "✓ Enregistré";
-  setTimeout(() => btn.textContent = "Enregistrer", 2000);
+  btn.textContent = "✓ Enregistré (" + val.length + " chars)";
+  setTimeout(() => btn.textContent = "Enregistrer", 3000);
+}
+
+async function testKey() {
+  const key = localStorage.getItem("groq_key");
+  const btn = document.getElementById("test-btn");
+  if (!key) { btn.textContent = "❌ Aucune clé enregistrée"; return; }
+  btn.textContent = "Test en cours...";
+  try {
+    const res = await fetch("https://api.groq.com/openai/v1/models", {
+      headers: { "Authorization": "Bearer " + cleanKey }
+    });
+    if (res.ok) {
+      btn.textContent = "✅ Clé valide !";
+    } else {
+      const d = await res.json();
+      btn.textContent = "❌ " + (d.error?.message || "Clé invalide");
+    }
+  } catch(e) {
+    btn.textContent = "❌ Erreur réseau";
+  }
+  setTimeout(() => btn.textContent = "Tester la clé", 4000);
 }
 
 function loadKey() {
@@ -322,6 +344,7 @@ function loadKey() {
 async function callGroq(prompt, model) {
   const key = localStorage.getItem("groq_key");
   if (!key) throw new Error("Clé Groq manquante — configure-la en haut");
+  const cleanKey = key.replace(/\s+/g, "").trim();
 
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 30000);
@@ -332,7 +355,7 @@ async function callGroq(prompt, model) {
       signal: controller.signal,
       headers: {
         "Content-Type": "application/json",
-        "Authorization": "Bearer " + key
+        "Authorization": "Bearer " + cleanKey
       },
       body: JSON.stringify({
         model: model,
