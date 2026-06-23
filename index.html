@@ -163,10 +163,10 @@ Formate clairement chaque section.`
     groq_model: null,
     styleIdx: 0,
     styles: [
-      { label: "🔥 Choc",  prompt: s => `Valorant ranked YouTube thumbnail ${s}, shocked player face, red danger warning, dramatic neon lighting, bold white text, dark esports` },
-      { label: "💡 Tuto",  prompt: s => `Valorant tutorial YouTube thumbnail ${s}, clean split comparison, arrows icons, bright blue red colors, modern flat design, bold text` },
-      { label: "😤 Rage",  prompt: s => `Valorant ranked YouTube thumbnail ${s}, angry frustrated gamer, keyboard smash, comic exaggerated expression, orange fire background, bold text` },
-      { label: "🎯 Pro",   prompt: s => `Valorant esports YouTube thumbnail ${s}, sleek dark background, agent silhouette, glowing crosshair, cinematic lighting, minimal bold typography` },
+      { label: "🔥 Choc",  prompt: s => `YouTube high CTR thumbnail Valorant beginner "${s}", extreme shocked face close-up, giant red X warning, neon red black dramatic lighting, bold white impact font, viral style` },
+      { label: "💡 Tuto",  prompt: s => `YouTube tutorial high CTR thumbnail Valorant "${s}", clean split before after comparison, blue orange contrast, upward arrow, progress chart, bright modern flat design, bold sans-serif` },
+      { label: "😤 Rage",  prompt: s => `YouTube viral thumbnail Valorant rank fail "${s}", exaggerated rage face gamer meme, fire explosion background, broken keyboard, comic style, orange red yellow contrast, bold fat text` },
+      { label: "🎯 Pro",   prompt: s => `YouTube premium thumbnail Valorant pro "${s}", cinematic dark scene, agent silhouette glowing crosshair, gold rank emblem, sleek minimal typography, dramatic spotlight, 4K esports` },
     ]
   },
   {
@@ -175,11 +175,29 @@ Formate clairement chaque section.`
     model: "Llama 3.3 · 70B",
     icon: "📅", bg: "#1a3320",
     groq_model: "llama-3.3-70b-versatile",
-    prompt: s => `Tu es stratège de contenu YouTube gaming. Sachant que la prochaine vidéo est sur "${s}" (série Valorant débutants ranked), propose:
-- 5 idées de vidéos suivantes logiques et complémentaires
-- Un ordre de publication cohérent
-- Pour chaque idée: titre + angle éditorial + durée estimée
-En français.`
+    prompt: s => `Tu es un stratège de contenu YouTube spécialisé en croissance de chaînes gaming francophones. Objectif : construire un calendrier éditorial qui crée une dynamique d'audience vers 100 000 vues par vidéo.
+
+Vidéo actuelle : "${s}" — série Valorant débutants ranked.
+
+Livre une stratégie éditoriale complète :
+
+CALENDRIER 6 SEMAINES (après cette vidéo)
+Pour chaque semaine :
+— Sujet de vidéo + titre accrocheur
+— Angle narratif (quel axe exploiter)
+— Lien avec la vidéo précédente (pour pousser la rétention d'audience)
+— Format recommandé (tuto, analyse, challenge, vlog gameplay)
+
+STRATÉGIE DE SÉRIE
+— Comment créer une dépendance narrative entre les vidéos
+— Quel sujet garder en teaser pour la semaine suivante
+— Idées de Shorts à publier entre les vidéos longues
+
+OBJECTIFS DE PROGRESSION
+— Vues attendues par vidéo si la stratégie est bien exécutée
+— Indicateurs à surveiller (CTR, rétention moyenne, abonnés/vidéo)
+
+En français, concret et actionnable.`
   },
   {
     id: "partenariat",
@@ -187,7 +205,29 @@ En français.`
     model: "Llama 3.3 · 70B",
     icon: "🤝", bg: "#2a1a3d",
     groq_model: "llama-3.3-70b-versatile",
-    prompt: s => `Tu es manager d'influenceur gaming. Rédige un email de prospection professionnel (200 mots max) pour contacter une marque de périphériques gaming (Razer, SteelSeries ou HyperX) en vue d'un partenariat pour une chaîne YouTube Valorant débutants (vidéo en cours: "${s}"). Inclus: accroche, présentation de la chaîne, proposition de valeur claire, appel à l'action. Ton professionnel mais accessible. En français.`
+    prompt: s => `Tu es un manager d'influenceurs gaming expert en négociation de partenariats pour créateurs YouTube. Tu connais exactement ce que les marques veulent entendre.
+
+Contexte : chaîne YouTube Valorant débutants ranked, vidéo en cours sur "${s}", objectif 100 000 vues/vidéo.
+
+Livre un kit de prospection complet :
+
+EMAIL DE PROSPECTION (200 mots max)
+— Objet d'email irrésistible
+— Corps du mail : accroche personnalisée, pitch chiffré, proposition de valeur, CTA clair
+
+MARQUES À CIBLER EN PRIORITÉ
+— 5 marques gaming pertinentes avec pourquoi elles matchent cette audience
+— Pour chaque marque : type de deal à proposer (code promo, placement, unboxing)
+
+ARGUMENTAIRE DE VENTE
+— Ce que cette audience apporte à une marque (profil, âge, intention d'achat)
+— Comment présenter ses stats même avec peu d'abonnés (taux d'engagement, niche, potentiel)
+
+TARIFICATION INDICATIVE
+— Grille de prix selon le nombre de vues par vidéo
+— Ce qu'il ne faut jamais accepter en dessous
+
+En français, direct et professionnel.`
   }
 ];
 
