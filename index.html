@@ -321,237 +321,26 @@ async function testKey() {
   if (!key) { btn.textContent = "❌ Aucune clé enregistrée"; return; }
   btn.textContent = "Test en cours...";
   try {
-    const res = await fetch("https://api.groq.com/openai/v1/models", {
-      headers: { "Authorization": "Bearer " + cleanKey }
+    const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer " + key.replace(/\s+/g, "").trim()
+      },
+      body: JSON.stringify({
+        model: "llama-3.1-8b-instant",
+        messages: [{ role: "user", content: "Dis juste OK" }],
+        max_tokens: 5
+      })
     });
+    const d = await res.json();
     if (res.ok) {
       btn.textContent = "✅ Clé valide !";
     } else {
-      const d = await res.json();
       btn.textContent = "❌ " + (d.error?.message || "Clé invalide");
     }
   } catch(e) {
-    btn.textContent = "❌ Erreur réseau";
+    btn.textContent = "❌ " + e.message;
   }
   setTimeout(() => btn.textContent = "Tester la clé", 4000);
 }
-
-function loadKey() {
-  const k = localStorage.getItem("groq_key") || "";
-  document.getElementById("groq-key").value = k;
-}
-
-async function callGroq(prompt, model) {
-  const key = localStorage.getItem("groq_key");
-  if (!key) throw new Error("Clé Groq manquante — configure-la en haut");
-  const cleanKey = key.replace(/\s+/g, "").trim();
-
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 30000);
-
-  try {
-    const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-      method: "POST",
-      signal: controller.signal,
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": "Bearer " + cleanKey
-      },
-      body: JSON.stringify({
-        model: model,
-        messages: [{ role: "user", content: prompt }],
-        max_tokens: 900,
-        temperature: 0.7
-      })
-    });
-    clearTimeout(timeout);
-    if (!res.ok) {
-      const err = await res.json();
-      throw new Error(err.error?.message || "Erreur API " + res.status);
-    }
-    const data = await res.json();
-    if (data.error) throw new Error(data.error.message);
-    return data.choices[0].message.content;
-  } catch(e) {
-    clearTimeout(timeout);
-    if (e.name === "AbortError") throw new Error("Timeout — réessaie");
-    throw e;
-  }
-}
-
-let currentSujet = "";
-
-function buildStyleTabs(agent) {
-  const container = document.getElementById("styles-miniature");
-  if (!container) return;
-  container.innerHTML = agent.styles.map((s, i) => 
-    `<button class="style-tab ${i === (agent.styleIdx||0) ? 'active' : ''}" onclick="selectStyle(${i})">${s.label}</button>`
-  ).join("");
-}
-
-async function selectStyle(idx) {
-  const agent = AGENTS.find(a => a.id === "miniature");
-  agent.styleIdx = idx;
-  buildStyleTabs(agent);
-  const sujet = document.getElementById("sujet").value.trim();
-  if (!sujet) return;
-  const card = document.getElementById("card-miniature");
-  const status = document.getElementById("status-miniature");
-  card.className = "card running";
-  status.textContent = "En cours...";
-  status.className = "card-status running";
-  try {
-    await generateMiniature(agent, sujet, idx);
-    card.className = "card done";
-    status.textContent = "✓ Image générée";
-    status.className = "card-status done";
-  } catch(e) {
-    card.className = "card error";
-    status.textContent = "Erreur";
-    status.className = "card-status error";
-  }
-}
-
-function prevStyle() {
-  const agent = AGENTS.find(a => a.id === "miniature");
-  selectStyle(((agent.styleIdx || 0) - 1 + agent.styles.length) % agent.styles.length);
-}
-function nextStyle() {
-  const agent = AGENTS.find(a => a.id === "miniature");
-  selectStyle(((agent.styleIdx || 0) + 1) % agent.styles.length);
-}
-
-async function generateMiniature(agent, sujet, idx) {
-  const img = document.getElementById("img-miniature");
-  const nav = document.getElementById("nav-miniature");
-  const navLabel = document.getElementById("nav-label-miniature");
-  const style = agent.styles[idx];
-  const url = "https://image.pollinations.ai/prompt/" + encodeURIComponent(style.prompt(sujet)) + "?width=640&height=360&nologo=true&seed=" + (Date.now() + idx);
-  img.src = url;
-  img.classList.add("visible");
-  nav.style.display = "flex";
-  navLabel.textContent = style.label;
-  await new Promise((res, rej) => {
-    img.onload = () => res();
-    img.onerror = () => rej(new Error("Échec image"));
-    setTimeout(() => rej(new Error("Timeout")), 30000);
-  });
-}
-
-function buildGrid() {
-  const grid = document.getElementById("grid");
-  grid.innerHTML = AGENTS.map(a => `
-    <div class="card" id="card-${a.id}">
-      <div class="card-head">
-        <div class="card-icon" style="background:${a.bg}">${a.icon}</div>
-        <div>
-          <div class="card-name">${a.name}</div>
-          <div class="card-model">${a.model}</div>
-        </div>
-      </div>
-      <div class="card-status" id="status-${a.id}"></div>
-      ${a.id === 'miniature' ? `
-        <div class="style-tabs" id="styles-miniature"></div>
-        <img class="card-img" id="img-miniature" alt="miniature générée" />
-        <div class="img-nav" id="nav-miniature" style="display:none">
-          <button onclick="prevStyle()" style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:5px 10px;cursor:pointer">◀</button>
-          <span id="nav-label-miniature" style="font-size:11px;color:var(--muted)"></span>
-          <button onclick="nextStyle()" style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:5px 10px;cursor:pointer">▶</button>
-        </div>
-      ` : `
-        <div class="card-output" id="out-${a.id}"></div>
-      `}
-      <div class="card-foot">
-        <button class="btn-run" id="btn-${a.id}" onclick="runAgent('${a.id}')">Lancer</button>
-        ${a.id !== 'miniature' ? `<button class="btn-copy" id="copy-${a.id}" onclick="copyOut('${a.id}')">📋</button>` : ''}
-      </div>
-    </div>
-  `).join("");
-}
-
-async function runAgent(id) {
-  const sujet = document.getElementById("sujet").value.trim();
-  if (!sujet) { alert("Entre un sujet d'abord."); return; }
-
-  const agent = AGENTS.find(a => a.id === id);
-  const card   = document.getElementById("card-" + id);
-  const out    = document.getElementById("out-" + id);
-  const img    = document.getElementById("img-" + id);
-  const status = document.getElementById("status-" + id);
-  const btn    = document.getElementById("btn-" + id);
-  const copy   = document.getElementById("copy-" + id);
-
-  card.className = "card running";
-  status.textContent = "En cours...";
-  status.className = "card-status running";
-  if (out) out.classList.remove("visible");
-  if (img) img.classList.remove("visible");
-  if (copy) copy.classList.remove("visible");
-  btn.disabled = true;
-
-  try {
-    if (agent.groq_model === null) {
-      await generateMiniature(agent, sujet, agent.styleIdx || 0);
-      card.className = "card done";
-      status.textContent = "✓ Image générée";
-      status.className = "card-status done";
-    } else {
-      const result = await callGroq(agent.prompt(sujet), agent.groq_model);
-      if (out) {
-        out.textContent = result;
-        out.classList.add("visible");
-      }
-      if (copy) copy.classList.add("visible");
-      card.className = "card done";
-      status.textContent = "✓ Terminé";
-      status.className = "card-status done";
-    }
-  } catch(e) {
-    const errTarget = out || document.createElement("div");
-    if (out) {
-      out.textContent = "❌ " + e.message;
-      out.classList.add("visible");
-    }
-    card.className = "card error";
-    status.textContent = "❌ " + e.message;
-    status.className = "card-status error";
-  }
-  btn.disabled = false;
-}
-
-async function runAll() {
-  const sujet = document.getElementById("sujet").value.trim();
-  if (!sujet) { alert("Entre un sujet d'abord."); return; }
-  const btn = document.getElementById("run-all-btn");
-  btn.disabled = true;
-  btn.textContent = "Agents en cours...";
-  for (const a of AGENTS) {
-    runAgent(a.id);
-    await new Promise(r => setTimeout(r, 300));
-  }
-  setTimeout(() => {
-    btn.disabled = false;
-    btn.textContent = "⚡ Lancer tous les agents";
-  }, 6000);
-}
-
-function copyOut(id) {
-  navigator.clipboard.writeText(document.getElementById("out-" + id).textContent).then(() => {
-    const btn = document.getElementById("copy-" + id);
-    btn.textContent = "✓";
-    setTimeout(() => btn.textContent = "📋", 2000);
-  });
-}
-
-buildGrid();
-loadKey();
-// Init miniature style tabs
-const miniAgent = AGENTS.find(a => a.id === "miniature");
-if (miniAgent) buildStyleTabs(miniAgent);
-
-if (/iPhone|iPad/.test(navigator.userAgent) && !navigator.standalone) {
-  document.getElementById("install-bar").classList.add("show");
-}
-</script>
-</body>
-</html>
