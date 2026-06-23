@@ -322,22 +322,38 @@ function loadKey() {
 async function callGroq(prompt, model) {
   const key = localStorage.getItem("groq_key");
   if (!key) throw new Error("Clé Groq manquante — configure-la en haut");
-  const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": "Bearer " + key
-    },
-    body: JSON.stringify({
-      model: model,
-      messages: [{ role: "user", content: prompt }],
-      max_tokens: 900,
-      temperature: 0.7
-    })
-  });
-  const data = await res.json();
-  if (data.error) throw new Error(data.error.message);
-  return data.choices[0].message.content;
+
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 30000);
+
+  try {
+    const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+      method: "POST",
+      signal: controller.signal,
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer " + key
+      },
+      body: JSON.stringify({
+        model: model,
+        messages: [{ role: "user", content: prompt }],
+        max_tokens: 900,
+        temperature: 0.7
+      })
+    });
+    clearTimeout(timeout);
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.error?.message || "Erreur API " + res.status);
+    }
+    const data = await res.json();
+    if (data.error) throw new Error(data.error.message);
+    return data.choices[0].message.content;
+  } catch(e) {
+    clearTimeout(timeout);
+    if (e.name === "AbortError") throw new Error("Timeout — réessaie");
+    throw e;
+  }
 }
 
 let currentSujet = "";
@@ -445,9 +461,9 @@ async function runAgent(id) {
   card.className = "card running";
   status.textContent = "En cours...";
   status.className = "card-status running";
-  out.classList.remove("visible");
-  img.classList.remove("visible");
-  copy.classList.remove("visible");
+  if (out) out.classList.remove("visible");
+  if (img) img.classList.remove("visible");
+  if (copy) copy.classList.remove("visible");
   btn.disabled = true;
 
   try {
@@ -458,18 +474,23 @@ async function runAgent(id) {
       status.className = "card-status done";
     } else {
       const result = await callGroq(agent.prompt(sujet), agent.groq_model);
-      out.textContent = result;
-      out.classList.add("visible");
-      copy.classList.add("visible");
+      if (out) {
+        out.textContent = result;
+        out.classList.add("visible");
+      }
+      if (copy) copy.classList.add("visible");
       card.className = "card done";
       status.textContent = "✓ Terminé";
       status.className = "card-status done";
     }
   } catch(e) {
-    out.textContent = "❌ " + e.message;
-    out.classList.add("visible");
+    const errTarget = out || document.createElement("div");
+    if (out) {
+      out.textContent = "❌ " + e.message;
+      out.classList.add("visible");
+    }
     card.className = "card error";
-    status.textContent = "Erreur";
+    status.textContent = "❌ " + e.message;
     status.className = "card-status error";
   }
   btn.disabled = false;
