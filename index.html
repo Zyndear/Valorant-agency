@@ -133,7 +133,17 @@ const AGENTS = [
     model: "Llama 3.3 · 70B",
     icon: "🔍", bg: "#1e3a5f",
     groq_model: "llama-3.3-70b-versatile",
-    prompt: s => `Tu es un expert Valorant. Pour le sujet "${s}", identifie les 5 erreurs les plus fréquentes des débutants en ranked. Pour chaque erreur: nom de l'erreur, explication courte, conseil concret pour l'éviter. Sois précis et direct. En français.`
+    prompt: s => `Tu es un analyste data spécialisé croissance YouTube gaming francophone. Objectif : 100 000 vues par vidéo.
+
+Sujet : "${s}" — série Valorant débutants ranked.
+
+1. POTENTIEL VIRAL : pourquoi ce sujet peut exploser (search volume, frustration commune)
+2. ANGLE DIFFÉRENCIANT : ce que les autres créateurs ratent sur ce sujet
+3. TOP 5 ERREURS DÉBUTANTS : les plus universelles et frustrantes, avec données concrètes
+4. HOOK PSYCHOLOGIQUE : quelle émotion exploiter (honte, espoir, curiosité, colère) pour maximiser le CTR
+5. MOTS-CLÉS : termes les plus recherchés par les débutants sur ce sujet
+
+Sois direct, concret, orienté performance. En français.`
   },
   {
     id: "script",
@@ -141,7 +151,22 @@ const AGENTS = [
     model: "Llama 3.3 · 70B",
     icon: "📝", bg: "#1a3d2e",
     groq_model: "llama-3.3-70b-versatile",
-    prompt: s => `Tu es scénariste YouTube gaming. Rédige un script vidéo de 3-4 minutes sur "${s}" pour une série Valorant destinée aux débutants. Structure: accroche percutante (15 secondes), 3-4 points clés développés, conclusion avec appel à l'action. Ton dynamique, pédagogique et motivant. En français.`
+    prompt: s => `Tu es un scénariste YouTube expert en rétention et viralité gaming francophone. Objectif : 100 000 vues minimum.
+
+Sujet : "${s}" — série Valorant débutants ranked.
+
+Propose 3 AXES NARRATIFS pour ce sujet :
+
+AXE 1 — "L erreur que TOUT LE MONDE fait"
+- Accroche (0-15s) + structure + twist + CTA + potentiel rétention estimé
+
+AXE 2 — "La transformation before/after"
+- Accroche (0-15s) + structure + twist + CTA + potentiel rétention estimé
+
+AXE 3 — "L angle contre-intuitif"
+- Accroche (0-15s) + structure + twist + CTA + potentiel rétention estimé
+
+Pour chaque axe : durée idéale et pourquoi ca peut exploser. En français.`
   },
   {
     id: "seo",
@@ -149,11 +174,25 @@ const AGENTS = [
     model: "Llama 3.1 · 8B",
     icon: "📈", bg: "#3d2a0a",
     groq_model: "llama-3.1-8b-instant",
-    prompt: s => `Expert SEO YouTube gaming francophone. Pour la vidéo "${s}" (série Valorant débutants ranked), génère:
-- 3 titres accrocheurs (max 60 caractères chacun)
-- 1 description YouTube optimisée (150 mots)
-- 10 hashtags/tags pertinents
-Formate clairement chaque section.`
+    prompt: s => `Tu es expert SEO YouTube gaming francophone. Objectif : maximiser CTR et atteindre 100 000 vues.
+
+Sujet : "${s}" — série Valorant débutants ranked.
+
+TITRES (3 options classées par potentiel CTR)
+- Titre A [Émotion] : max 60 chars + score CTR estimé /10
+- Titre B [Curiosité] : max 60 chars + score CTR estimé /10
+- Titre C [Transformation] : max 60 chars + score CTR estimé /10
+
+DESCRIPTION (150 mots)
+- Première ligne ultra-accrocheuse (visible avant voir plus)
+- Corps avec mots-clés naturels + CTA
+
+TAGS (15 tags du plus au moins compétitif)
+
+STRATÉGIE BOOST
+- Meilleur moment de publication + communautés où partager + idée de Short
+
+En français.`
   },
   {
     id: "miniature",
