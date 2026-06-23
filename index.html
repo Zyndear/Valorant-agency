@@ -94,7 +94,7 @@
 
 <header>
   <div class="logo">Valo<span>Agence</span></div>
-  <div class="badge">6 agents IA</div>
+  <div class="badge">7 agents IA</div>
 </header>
 
 <div style="height:16px"></div>
@@ -170,11 +170,41 @@ Formate clairement chaque section.`
     ]
   },
   {
+    id: "coaching",
+    name: "Coach Valo",
+    model: "Llama 3.3 · 70B",
+    icon: "🧠", bg: "#2a1a1a",
+    groq_model: "llama-3.3-70b-versatile",
+    prompt: s => `Tu es un coach Valorant professionnel et psychologue du sport spécialisé esport. Tu as coaché des joueurs de Bronze à Diamond. Tu comprends autant le jeu que le mental des joueurs.
+
+Sujet de la vidéo : "${s}" — série pour débutants en ranked.
+
+Livre un coaching complet en deux volets :
+
+VOLET 1 — CORRECTION TECHNIQUE (in-game)
+Pour chaque erreur liée au sujet :
+— L'erreur exacte et pourquoi elle se produit neurologiquement (habitude, automatisme)
+— Exercice concret pour la corriger (avec durée et fréquence recommandées)
+— Comment mesurer sa progression sur cet aspect
+
+VOLET 2 — DÉVELOPPEMENT MENTAL
+— Le pattern mental toxique lié à ce sujet (ex: tilt, ego, impatience)
+— Technique de reset mental immédiat (utilisable en partie)
+— Routine mentale pré-game pour aborder ce sujet avec le bon état d'esprit
+— Citation ou mindset de pro à adopter sur ce point
+
+BONUS — CONSEIL POUR LE CRÉATEUR
+— Comment présenter ce coaching dans ta vidéo pour que les spectateurs ressentent une vraie transformation
+— Formule d'accroche émotionnelle liée à ce sujet
+
+En français, concret, bienveillant mais exigeant.`
+  },
+  {
     id: "planning",
     name: "Planning",
-    model: "Llama 3.3 · 70B",
+    model: "Llama 3.1 · 8B",
     icon: "📅", bg: "#1a3320",
-    groq_model: "llama-3.3-70b-versatile",
+    groq_model: "llama-3.1-8b-instant",
     prompt: s => `Tu es un stratège de contenu YouTube spécialisé en croissance de chaînes gaming francophones. Objectif : construire un calendrier éditorial qui crée une dynamique d'audience vers 100 000 vues par vidéo.
 
 Vidéo actuelle : "${s}" — série Valorant débutants ranked.
@@ -202,9 +232,9 @@ En français, concret et actionnable.`
   {
     id: "partenariat",
     name: "Partenariat",
-    model: "Llama 3.3 · 70B",
+    model: "Llama 3.1 · 8B",
     icon: "🤝", bg: "#2a1a3d",
-    groq_model: "llama-3.3-70b-versatile",
+    groq_model: "llama-3.1-8b-instant",
     prompt: s => `Tu es un manager d'influenceurs gaming expert en négociation de partenariats pour créateurs YouTube. Tu connais exactement ce que les marques veulent entendre.
 
 Contexte : chaîne YouTube Valorant débutants ranked, vidéo en cours sur "${s}", objectif 100 000 vues/vidéo.
