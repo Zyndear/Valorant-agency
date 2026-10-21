@@ -115,8 +115,8 @@ const SYSTEM_BASE = "Tu es un membre d'une agence de croissance YouTube spécial
 
 const AGENTS = [
   {
-    id: "recherche", name: "Stratège", model: "Llama 3.3 · 70B", icon: "🔍", bg: "#1e3a5f",
-    groq_model: "llama-3.3-70b-versatile", max_tokens: 1500,
+    id: "recherche", name: "Stratège", model: "GPT-OSS 120B", icon: "🔍", bg: "#1e3a5f",
+    groq_model: "openai/gpt-oss-120b", max_tokens: 4000,
     role: "Tu es le stratège contenu et analyste d'audience de l'agence.",
     prompt: s => `Sujet de la prochaine vidéo : "${s}".
 
@@ -131,8 +131,8 @@ Livre une note stratégique :
 7. RISQUES : ce qui pourrait faire flopper cette vidéo et comment l'éviter`
   },
   {
-    id: "script", name: "Scénariste", model: "Llama 3.3 · 70B", icon: "📝", bg: "#1a3d2e",
-    groq_model: "llama-3.3-70b-versatile", max_tokens: 1500,
+    id: "script", name: "Scénariste", model: "GPT-OSS 120B", icon: "📝", bg: "#1a3d2e",
+    groq_model: "openai/gpt-oss-120b", max_tokens: 4000,
     role: "Tu es le scénariste en chef, expert en rétention d'audience et en storytelling pédagogique.",
     prompt: s => `Sujet de la vidéo : "${s}".
 
@@ -148,8 +148,8 @@ Propose 3 AXES NARRATIFS différents. Pour chaque axe, donne :
 Termine par ta RECOMMANDATION : quel axe choisir pour cette étape de la chaîne et pourquoi.`
   },
   {
-    id: "seo", name: "Titre & SEO", model: "Llama 3.1 · 8B", icon: "📈", bg: "#3d2a0a",
-    groq_model: "llama-3.1-8b-instant", max_tokens: 1200,
+    id: "seo", name: "Titre & SEO", model: "GPT-OSS 20B", icon: "📈", bg: "#3d2a0a",
+    groq_model: "openai/gpt-oss-20b", max_tokens: 3000,
     role: "Tu es l'expert packaging et SEO YouTube de l'agence.",
     prompt: s => `Sujet de la vidéo : "${s}".
 
@@ -173,8 +173,8 @@ Livre :
     ]
   },
   {
-    id: "coaching", name: "Coach Valo", model: "Llama 3.3 · 70B", icon: "🧠", bg: "#2a1a1a",
-    groq_model: "llama-3.3-70b-versatile", max_tokens: 1500,
+    id: "coaching", name: "Coach Valo", model: "GPT-OSS 120B", icon: "🧠", bg: "#2a1a1a",
+    groq_model: "openai/gpt-oss-120b", max_tokens: 4000,
     role: "Tu es coach Valorant expert, doublé d'un préparateur mental spécialisé en esport. Tu as coaché des joueurs de Bronze à Diamant.",
     prompt: s => `Sujet de la vidéo : "${s}".
 
@@ -195,8 +195,8 @@ Un mini programme jour par jour que le spectateur peut suivre (15 à 30 minutes 
 BONUS CRÉATEUR : comment mettre ce coaching en scène à l'écran pour que le spectateur sente une progression, et quel défi proposer en commentaire pour créer de l'engagement.`
   },
   {
-    id: "planning", name: "Planning", model: "Llama 3.1 · 8B", icon: "📅", bg: "#1a3320",
-    groq_model: "llama-3.1-8b-instant", max_tokens: 1400,
+    id: "planning", name: "Planning", model: "GPT-OSS 20B", icon: "📅", bg: "#1a3320",
+    groq_model: "openai/gpt-oss-20b", max_tokens: 3000,
     role: "Tu es le directeur de chaîne : tu construis la roadmap de croissance et la ligne éditoriale.",
     prompt: s => `Vidéo en cours : "${s}".
 
@@ -211,8 +211,8 @@ Livre un plan de chaîne :
 7. ERREURS À ÉVITER à cette étape`
   },
   {
-    id: "partenariat", name: "Partenariat", model: "Llama 3.3 · 70B", icon: "🤝", bg: "#2a1a3d",
-    groq_model: "llama-3.3-70b-versatile", max_tokens: 1500,
+    id: "partenariat", name: "Partenariat", model: "GPT-OSS 120B", icon: "🤝", bg: "#2a1a3d",
+    groq_model: "openai/gpt-oss-120b", max_tokens: 4000,
     role: "Tu es le responsable partenariats et monétisation de l'agence, spécialisé dans les créateurs gaming.",
     prompt: s => `Vidéo en cours : "${s}".
 
@@ -263,7 +263,7 @@ async function testKey() {
     const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST",
       headers: { "Content-Type": "application/json", "Authorization": "Bearer " + key.replace(/\s+/g,"").trim() },
-      body: JSON.stringify({ model: "llama-3.1-8b-instant", messages: [{ role: "user", content: "OK" }], max_tokens: 5 })
+      body: JSON.stringify({ model: "openai/gpt-oss-20b", messages: [{ role: "user", content: "Réponds OK" }], max_completion_tokens: 300, reasoning_effort: "low", include_reasoning: false })
     });
     const d = await res.json();
     btn.textContent = res.ok ? "✅ Clé valide !" : "❌ " + (d.error?.message || "Clé invalide");
@@ -292,7 +292,9 @@ async function callGroq(agent, sujet, attempt) {
           { role: "system", content: system },
           { role: "user", content: agent.prompt(sujet) }
         ],
-        max_tokens: agent.max_tokens || 1200,
+        max_completion_tokens: agent.max_tokens || 3000,
+        reasoning_effort: "low",
+        include_reasoning: false,
         temperature: 0.7
       })
     });
@@ -303,7 +305,9 @@ async function callGroq(agent, sujet, attempt) {
       return callGroq(agent, sujet, attempt + 1);
     }
     if (!res.ok) throw new Error(data.error?.message || "Erreur API " + res.status);
-    return data.choices[0].message.content;
+    const txt = data.choices?.[0]?.message?.content;
+    if (!txt || !txt.trim()) throw new Error("Réponse vide — relance l'agent");
+    return txt;
   } catch(e) {
     clearTimeout(timeout);
     if (e.name === "AbortError") throw new Error("Timeout — réessaie");
