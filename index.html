@@ -2,111 +2,171 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="ValoAgence">
 <meta name="theme-color" content="#0f0f0f">
 <title>ValoAgence IA</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-  :root{--bg:#0f0f0f;--surface:#1a1a1a;--surface2:#242424;--border:rgba(255,255,255,0.08);--text:#f0f0f0;--muted:#888;--accent:#ff4655;--green:#00d4aa;--warn:#f0a500;}
-  *{box-sizing:border-box;margin:0;padding:0;}
-  body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;padding-bottom:100px;}
-  header{padding:20px 20px 0;display:flex;align-items:center;justify-content:space-between;}
+  :root{--bg:#0f0f0f;--surface:#181818;--surface2:#222;--border:rgba(255,255,255,0.09);--text:#f2f2f2;--muted:#8d8d8d;--accent:#ff4655;--accent-soft:rgba(255,70,85,0.16);--green:#00d4aa;--warn:#f0a500;}
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+  html{-webkit-text-size-adjust:100%;}
+  body{background:var(--bg);color:var(--text);font-family:'DM Sans',-apple-system,sans-serif;min-height:100vh;padding-bottom:calc(env(safe-area-inset-bottom) + 40px);}
+  .wrap{max-width:760px;margin:0 auto;}
+  button{font-family:inherit;color:inherit;}
+  input,textarea{font-size:16px;font-family:inherit;}
+
+  header{display:flex;align-items:center;justify-content:space-between;padding:calc(env(safe-area-inset-top) + 14px) 16px 10px;}
   .logo{font-family:'Syne',sans-serif;font-weight:800;font-size:22px;}
   .logo span{color:var(--accent);}
-  .badge{font-size:11px;background:rgba(255,70,85,0.15);color:var(--accent);border:1px solid rgba(255,70,85,0.3);padding:3px 8px;border-radius:20px;}
-  .key-section{margin:16px 20px 12px;background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;}
-  .key-toggle{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;cursor:pointer;}
-  .key-toggle span{font-size:13px;color:var(--muted);}
-  .key-body{display:none;padding:0 16px 16px;border-top:1px solid var(--border);}
-  .key-body.open{display:block;}
-  .key-body label{display:block;font-size:11px;color:var(--muted);margin:12px 0 4px;text-transform:uppercase;letter-spacing:.5px;}
-  .key-body input,.key-body textarea{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--text);font-size:13px;font-family:'DM Sans',sans-serif;}
-  .key-body textarea{resize:vertical;min-height:90px;line-height:1.5;}
-  .key-body input:focus,.key-body textarea:focus{outline:1px solid var(--accent);}
-  .key-hint{font-size:11px;color:var(--muted);margin-top:4px;}
-  .key-hint a{color:var(--accent);}
-  .save-btn{margin-top:10px;width:100%;padding:10px;background:var(--accent);color:white;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Syne',sans-serif;}
-  .test-btn{margin-top:6px;width:100%;padding:10px;background:var(--surface2);color:var(--text);border:1px solid var(--border);border-radius:8px;font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif;}
-  .input-wrap{margin:0 20px 12px;}
-  .input-wrap textarea{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px 16px;color:var(--text);font-size:15px;font-family:'DM Sans',sans-serif;resize:none;height:70px;line-height:1.5;}
-  .input-wrap textarea:focus{outline:1px solid var(--accent);}
-  .input-wrap textarea::placeholder{color:var(--muted);}
-  .run-all{margin:0 20px 20px;display:block;width:calc(100% - 40px);padding:14px;background:var(--accent);color:white;border:none;border-radius:12px;font-family:'Syne',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:opacity .2s;}
-  .run-all:disabled{opacity:.4;cursor:not-allowed;}
-  .section-label{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:1px;padding:0 20px;margin-bottom:10px;font-family:'Syne',sans-serif;}
-  .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 20px;}
-  @media(min-width:600px){.grid{grid-template-columns:repeat(3,1fr);}}
-  .card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:8px;transition:border-color .2s;}
-  .card.running{border-color:var(--warn);}
-  .card.done{border-color:var(--green);}
-  .card.error{border-color:var(--accent);}
-  .card-head{display:flex;align-items:center;gap:8px;}
-  .card-icon{width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
-  .card-name{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;}
-  .card-model{font-size:10px;color:var(--muted);}
-  .card-status{font-size:10px;min-height:14px;}
-  .card-status.running{color:var(--warn);}
-  .card-status.done{color:var(--green);}
-  .card-status.error{color:var(--accent);}
-  .card-output{font-size:12px;line-height:1.6;color:#ccc;background:var(--surface2);border-radius:8px;padding:10px;display:none;max-height:260px;overflow-y:auto;white-space:pre-wrap;word-break:break-word;}
-  .card-output.visible{display:block;}
-  .card-img{border-radius:8px;width:100%;display:none;}
-  .card-img.visible{display:block;}
-  .style-tabs{display:flex;gap:5px;flex-wrap:wrap;}
-  .style-tab{font-size:11px;padding:4px 8px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--muted);cursor:pointer;}
-  .style-tab.active{border-color:var(--accent);color:var(--accent);}
-  .img-nav{display:flex;align-items:center;justify-content:space-between;gap:6px;}
-  .img-nav button{background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:5px 10px;cursor:pointer;}
-  .card-foot{display:flex;gap:6px;}
-  .btn-run{flex:1;padding:8px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif;}
-  .btn-run:hover{border-color:var(--accent);color:var(--accent);}
-  .btn-run:disabled{opacity:.4;cursor:not-allowed;}
-  .btn-copy{padding:8px 10px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--muted);font-size:12px;cursor:pointer;display:none;}
-  .btn-copy.visible{display:block;}
-  .install-bar{position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-top:1px solid var(--border);padding:12px 20px;font-size:12px;color:var(--muted);text-align:center;display:none;}
-  .install-bar.show{display:block;}
+  .icon-btn{width:44px;height:44px;border-radius:12px;background:var(--surface);border:1px solid var(--border);font-size:20px;cursor:pointer;}
+
+  .banner{margin:0 16px 12px;padding:12px 14px;background:var(--accent-soft);border:1px solid rgba(255,70,85,0.35);border-radius:12px;font-size:14px;display:none;align-items:center;justify-content:space-between;gap:10px;}
+  .banner.show{display:flex;}
+  .banner button{background:var(--accent);border:none;border-radius:8px;padding:9px 12px;font-weight:600;font-size:13px;cursor:pointer;color:#fff;white-space:nowrap;}
+
+  .hero{margin:0 16px 14px;}
+  .hero label{display:block;font-family:'Syne',sans-serif;font-weight:700;font-size:15px;margin-bottom:8px;}
+  .hero textarea{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px;color:var(--text);resize:none;height:84px;line-height:1.45;}
+  .hero textarea:focus{outline:2px solid var(--accent);border-color:transparent;}
+  .hero textarea::placeholder{color:var(--muted);}
+  .hero textarea.shake{animation:shake .4s;}
+  @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+  .sugg{display:flex;gap:8px;overflow-x:auto;padding:10px 0 2px;scrollbar-width:none;}
+  .sugg::-webkit-scrollbar,.tabs::-webkit-scrollbar{display:none;}
+  .sugg button{flex:0 0 auto;font-size:13px;padding:7px 12px;border-radius:999px;background:transparent;border:1px dashed var(--border);color:var(--muted);cursor:pointer;}
+
+  .run-all{position:relative;overflow:hidden;margin:0 16px 14px;width:calc(100% - 32px);min-height:52px;border:none;border-radius:14px;background:var(--accent);color:#fff;font-family:'Syne',sans-serif;font-size:16px;font-weight:700;cursor:pointer;}
+  .run-all:disabled{cursor:default;background:#5a2a30;}
+  .run-all .fill{position:absolute;left:0;top:0;bottom:0;width:0;background:rgba(255,255,255,0.18);transition:width .4s;}
+  .run-all span{position:relative;}
+
+  .tabs-wrap{position:sticky;top:0;z-index:20;background:rgba(15,15,15,0.94);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);padding-top:env(safe-area-inset-top);border-bottom:1px solid var(--border);}
+  .tabs{display:flex;gap:8px;overflow-x:auto;padding:10px 16px;scrollbar-width:none;-webkit-overflow-scrolling:touch;}
+  .tab{flex:0 0 auto;display:flex;align-items:center;gap:7px;min-height:42px;padding:0 14px;border-radius:999px;background:var(--surface);border:1px solid var(--border);font-size:14px;font-weight:500;white-space:nowrap;cursor:pointer;}
+  .tab.active{background:var(--accent-soft);border-color:var(--accent);}
+  .dot{width:8px;height:8px;border-radius:50%;background:#444;flex-shrink:0;}
+  .dot.running{background:var(--warn);animation:pulse 1s infinite;}
+  .dot.done{background:var(--green);}
+  .dot.error{background:var(--accent);}
+  @keyframes pulse{50%{opacity:.3}}
+
+  .panel{margin:14px 16px 0;background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:16px;min-height:280px;}
+  .p-head{display:flex;align-items:center;gap:12px;margin-bottom:14px;}
+  .p-ico{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;}
+  .p-titles{flex:1;min-width:0;}
+  .p-name{font-family:'Syne',sans-serif;font-weight:700;font-size:17px;}
+  .p-desc{font-size:13px;color:var(--muted);margin-top:2px;line-height:1.35;}
+  .p-model{font-size:10px;color:var(--muted);border:1px solid var(--border);border-radius:6px;padding:3px 6px;white-space:nowrap;align-self:flex-start;}
+  .p-actions{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;}
+  .btn{min-height:44px;padding:0 16px;border-radius:12px;background:var(--surface2);border:1px solid var(--border);font-size:15px;font-weight:500;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px;text-decoration:none;color:var(--text);}
+  .btn.primary{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600;flex:1;}
+  .btn:disabled{opacity:.5;cursor:default;}
+  .btn.full{width:100%;margin-top:10px;}
+
+  .subject-line{font-size:12px;color:var(--muted);margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid var(--border);}
+  .empty{text-align:center;color:var(--muted);font-size:14px;line-height:1.5;padding:34px 10px;}
+  .empty .big{font-size:34px;margin-bottom:8px;}
+  .loading{display:flex;flex-direction:column;align-items:center;gap:14px;padding:40px 10px;color:var(--muted);font-size:14px;text-align:center;}
+  .spinner{width:30px;height:30px;border:3px solid var(--surface2);border-top-color:var(--warn);border-radius:50%;animation:spin .8s linear infinite;}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .errbox{background:rgba(255,70,85,0.1);border:1px solid rgba(255,70,85,0.35);border-radius:12px;padding:14px;font-size:14px;line-height:1.5;word-break:break-word;}
+  .errbox .tip{color:var(--muted);margin-top:8px;font-size:13px;}
+
+  .md{font-size:15.5px;line-height:1.65;color:#e8e8e8;word-break:break-word;}
+  .md h4{font-family:'Syne',sans-serif;font-size:15.5px;color:#fff;margin:20px 0 6px;padding-left:10px;border-left:3px solid var(--accent);}
+  .md h4:first-child{margin-top:0;}
+  .md p{margin:8px 0;}
+  .md strong{color:#fff;font-weight:600;}
+  .md ul,.md ol{margin:6px 0 6px 22px;}
+  .md li{margin:5px 0;}
+  .md hr{border:none;border-top:1px solid var(--border);margin:16px 0;}
+  .md code{background:var(--surface2);padding:1px 5px;border-radius:5px;font-size:13px;}
+  .tbl{overflow-x:auto;margin:10px 0;-webkit-overflow-scrolling:touch;}
+  .md table{border-collapse:collapse;font-size:13.5px;min-width:100%;}
+  .md th,.md td{border:1px solid var(--border);padding:7px 9px;text-align:left;vertical-align:top;}
+  .md th{background:var(--surface2);color:#fff;white-space:nowrap;}
+
+  .chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;}
+  .chip{min-height:40px;padding:0 14px;border-radius:999px;background:var(--surface2);border:1px solid var(--border);font-size:14px;cursor:pointer;}
+  .chip.active{border-color:var(--accent);background:var(--accent-soft);}
+  .thumb{width:100%;border-radius:12px;display:block;margin-bottom:10px;background:var(--surface2);aspect-ratio:16/9;object-fit:cover;}
+  .hint{font-size:12.5px;color:var(--muted);line-height:1.5;margin-top:6px;}
+
+  .footer-actions{display:flex;gap:8px;margin:14px 16px 0;}
+  .footer-actions .btn{flex:1;font-size:14px;}
+
+  .sheet-bg{position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:50;display:none;}
+  .sheet-bg.show{display:block;}
+  .sheet{position:fixed;left:0;right:0;bottom:0;z-index:51;max-width:760px;margin:0 auto;background:var(--surface);border-radius:22px 22px 0 0;border:1px solid var(--border);padding:18px 18px calc(env(safe-area-inset-bottom) + 18px);max-height:88vh;overflow-y:auto;transform:translateY(105%);transition:transform .25s;}
+  .sheet.show{transform:translateY(0);}
+  .sheet-title{font-family:'Syne',sans-serif;font-weight:700;font-size:19px;margin-bottom:6px;}
+  .sheet label{display:block;font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin:16px 0 6px;}
+  .sheet input,.sheet textarea{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px;color:var(--text);}
+  .sheet textarea{min-height:120px;line-height:1.45;resize:vertical;}
+  .sheet input:focus,.sheet textarea:focus{outline:2px solid var(--accent);border-color:transparent;}
+  .sheet .row{display:flex;gap:8px;margin-top:10px;}
+  .sheet a{color:var(--accent);}
+  #key-status{font-size:13px;margin-top:8px;min-height:18px;}
+
+  .toast{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom) + 24px);transform:translate(-50%,20px);background:#2b2b2b;border:1px solid var(--border);padding:11px 16px;border-radius:12px;font-size:14px;opacity:0;pointer-events:none;transition:.25s;z-index:80;max-width:90%;text-align:center;}
+  .toast.show{opacity:1;transform:translate(-50%,0);}
 </style>
 </head>
 <body>
+<div class="wrap">
 
 <header>
   <div class="logo">Valo<span>Agence</span></div>
-  <div class="badge">7 agents IA</div>
+  <button class="icon-btn" onclick="openSettings()" aria-label="Réglages">⚙️</button>
 </header>
 
-<div class="key-section">
-  <div class="key-toggle" onclick="this.nextElementSibling.classList.toggle('open')">
-    <span>⚙ Réglages (clé API + contexte chaîne)</span><span>▾</span>
+<div class="banner" id="banner">
+  <span>🔑 Ajoute ta clé Groq (gratuite) pour démarrer.</span>
+  <button onclick="openSettings()">Ajouter</button>
+</div>
+
+<div class="hero">
+  <label for="sujet">De quoi parle ta prochaine vidéo ?</label>
+  <textarea id="sujet" placeholder="Ex : les erreurs de visée en ranked" oninput="persist()"></textarea>
+  <div class="sugg" id="sugg"></div>
+</div>
+
+<button class="run-all" id="run-all-btn" onclick="runAll()"><div class="fill" id="run-fill"></div><span id="run-label">⚡ Lancer les 7 agents</span></button>
+
+<div class="tabs-wrap"><div class="tabs" id="tabs"></div></div>
+
+<div class="panel" id="panel"></div>
+
+<div class="footer-actions" id="footer-actions"></div>
+
+</div>
+
+<div class="sheet-bg" id="sheet-bg" onclick="closeSettings()"></div>
+<div class="sheet" id="sheet">
+  <div class="sheet-title">Réglages</div>
+
+  <label for="groq-key">Clé Groq</label>
+  <input type="password" id="groq-key" placeholder="gsk_..." autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" />
+  <div class="hint">Gratuite sur <a href="https://console.groq.com/keys" target="_blank" rel="noopener">console.groq.com</a>. Copie-la directement depuis le site.</div>
+  <div class="row">
+    <button class="btn primary" onclick="saveKey()">Enregistrer</button>
+    <button class="btn" onclick="testKey()">Tester la clé</button>
   </div>
-  <div class="key-body">
-    <label>Clé Groq — une seule clé pour tous les agents</label>
-    <input type="password" id="groq-key" placeholder="gsk_..." />
-    <div class="key-hint">Gratuit sur <a href="https://console.groq.com" target="_blank">console.groq.com</a></div>
-    <button class="save-btn" onclick="saveKey()">Enregistrer la clé</button>
-    <button class="test-btn" id="test-btn" onclick="testKey()">Tester la clé</button>
+  <div id="key-status"></div>
 
-    <label>Contexte de ta chaîne (lu par tous les agents)</label>
-    <textarea id="channel-ctx"></textarea>
-    <div class="key-hint">Mets à jour ton nombre d'abonnés, tes stats et tes objectifs : les agents s'adaptent.</div>
-    <button class="save-btn" onclick="saveCtx()">Enregistrer le contexte</button>
-  </div>
+  <label for="channel-ctx">Contexte de ta chaîne (lu par tous les agents)</label>
+  <textarea id="channel-ctx"></textarea>
+  <div class="hint">Mets à jour tes abonnés, tes objectifs, l'avancement de la série : les agents s'adaptent.</div>
+  <button class="btn primary full" onclick="saveCtx()">Enregistrer le contexte</button>
+
+  <div class="hint" style="margin-top:16px">📱 Pour l'installer comme une app : Safari → Partager → « Sur l'écran d'accueil ».</div>
+  <button class="btn full" onclick="closeSettings()">Fermer</button>
 </div>
 
-<div class="input-wrap">
-  <textarea id="sujet" placeholder="Sujet de ta vidéo (ex: les erreurs de visée en ranked)"></textarea>
-</div>
-
-<button class="run-all" id="run-all-btn" onclick="runAll()">⚡ Lancer tous les agents</button>
-
-<div class="section-label">Agents</div>
-<div class="grid" id="grid"></div>
-
-<div class="install-bar" id="install-bar">
-  📱 Safari → Partager → "Sur l'écran d'accueil" pour installer
-</div>
+<div class="toast" id="toast"></div>
 
 <script>
 const DEFAULT_CTX = "Chaîne YouTube francophone sur Valorant, pour les débutants qui veulent progresser en ranked en comprenant leurs erreurs. Chaîne en démarrage (environ 50 abonnés). Objectif : devenir une chaîne professionnelle, avec une audience fidèle, une identité reconnaissable, une régularité de publication et des revenus (partenariats, sponsoring, monétisation). Série de vidéos tutoriels déjà filmée, en cours de montage et de publication.";
@@ -228,50 +288,6 @@ Livre un plan de monétisation et de partenariats réaliste pour cette étape de
   }
 ];
 
-function saveKey() {
-  const val = document.getElementById("groq-key").value.replace(/\s+/g, "").trim();
-  if (!val) return;
-  localStorage.setItem("groq_key", val);
-  const btn = document.querySelectorAll(".save-btn")[0];
-  btn.textContent = "✓ Enregistrée (" + val.length + " caractères)";
-  setTimeout(() => btn.textContent = "Enregistrer la clé", 3000);
-}
-
-function saveCtx() {
-  const val = document.getElementById("channel-ctx").value.trim();
-  localStorage.setItem("channel_ctx", val || DEFAULT_CTX);
-  const btn = document.querySelectorAll(".save-btn")[1];
-  btn.textContent = "✓ Contexte enregistré";
-  setTimeout(() => btn.textContent = "Enregistrer le contexte", 2500);
-}
-
-function getCtx() {
-  return localStorage.getItem("channel_ctx") || DEFAULT_CTX;
-}
-
-function loadSettings() {
-  document.getElementById("groq-key").value = localStorage.getItem("groq_key") || "";
-  document.getElementById("channel-ctx").value = getCtx();
-}
-
-async function testKey() {
-  const key = localStorage.getItem("groq_key");
-  const btn = document.getElementById("test-btn");
-  if (!key) { btn.textContent = "❌ Aucune clé enregistrée"; return; }
-  btn.textContent = "Test en cours...";
-  try {
-    const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "Authorization": "Bearer " + key.replace(/\s+/g,"").trim() },
-      body: JSON.stringify({ model: "openai/gpt-oss-20b", messages: [{ role: "user", content: "Réponds OK" }], max_completion_tokens: 300, reasoning_effort: "low", include_reasoning: false })
-    });
-    const d = await res.json();
-    btn.textContent = res.ok ? "✅ Clé valide !" : "❌ " + (d.error?.message || "Clé invalide");
-  } catch(e) {
-    btn.textContent = "❌ " + e.message;
-  }
-  setTimeout(() => btn.textContent = "Tester la clé", 4000);
-}
 
 async function callGroq(agent, sujet, attempt) {
   attempt = attempt || 0;
@@ -315,159 +331,308 @@ async function callGroq(agent, sujet, attempt) {
   }
 }
 
-async function generateMiniature(agent, sujet, idx) {
-  const img = document.getElementById("img-miniature");
-  const nav = document.getElementById("nav-miniature");
-  const navLabel = document.getElementById("nav-label-miniature");
-  const style = agent.styles[idx];
-  img.src = "https://image.pollinations.ai/prompt/" + encodeURIComponent(style.prompt(sujet)) + "?width=640&height=360&nologo=true&seed=" + Date.now();
-  img.classList.add("visible");
-  if (nav) nav.style.display = "flex";
-  if (navLabel) navLabel.textContent = style.label;
-  await new Promise((res, rej) => {
-    img.onload = () => res();
-    img.onerror = () => rej(new Error("Échec image"));
-    setTimeout(() => rej(new Error("Timeout image")), 30000);
-  });
-}
 
-function buildStyleTabs(agent) {
-  const container = document.getElementById("styles-miniature");
-  if (!container) return;
-  container.innerHTML = agent.styles.map((s, i) =>
-    `<button class="style-tab ${i === (agent.styleIdx||0) ? 'active' : ''}" onclick="selectStyle(${i})">${s.label}</button>`
-  ).join("");
-}
+// ===== Interface =====
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 
-async function selectStyle(idx) {
-  const agent = AGENTS.find(a => a.id === "miniature");
-  agent.styleIdx = idx;
-  buildStyleTabs(agent);
-  const sujet = document.getElementById("sujet").value.trim();
-  if (!sujet) return;
-  const card = document.getElementById("card-miniature");
-  const status = document.getElementById("status-miniature");
-  card.className = "card running";
-  status.textContent = "En cours...";
-  status.className = "card-status running";
-  try {
-    await generateMiniature(agent, sujet, idx);
-    card.className = "card done";
-    status.textContent = "✓ Image générée";
-    status.className = "card-status done";
-  } catch(e) {
-    card.className = "card error";
-    status.textContent = "❌ " + e.message;
-    status.className = "card-status error";
-  }
-}
+const DESC = {
+  recherche: "Analyse la demande, l'angle et les risques du sujet",
+  script: "3 axes narratifs avec accroche et plan chronométré",
+  seo: "Titres, description, tags et idées de Shorts",
+  miniature: "4 styles de miniature générés en image",
+  coaching: "Corrections techniques, mental et plan sur 7 jours",
+  planning: "Identité de chaîne, calendrier 6 semaines, paliers",
+  partenariat: "Monétisation, marques à contacter, email de prospection"
+};
+const SUGGESTIONS = ["Les erreurs de visée", "Le placement du crosshair", "Mal gérer son économie", "Jouer sans communiquer"];
 
-function prevStyle() {
-  const agent = AGENTS.find(a => a.id === "miniature");
-  selectStyle(((agent.styleIdx||0) - 1 + agent.styles.length) % agent.styles.length);
-}
-function nextStyle() {
-  const agent = AGENTS.find(a => a.id === "miniature");
-  selectStyle(((agent.styleIdx||0) + 1) % agent.styles.length);
-}
+const state = { current: AGENTS[0].id, status: {}, results: {}, errors: {}, thumbUrl: "", resultSubject: "", running: false };
+AGENTS.forEach(a => state.status[a.id] = "idle");
+const agentById = id => AGENTS.find(a => a.id === id);
 
-function buildGrid() {
-  document.getElementById("grid").innerHTML = AGENTS.map(a => `
-    <div class="card" id="card-${a.id}">
-      <div class="card-head">
-        <div class="card-icon" style="background:${a.bg}">${a.icon}</div>
-        <div>
-          <div class="card-name">${a.name}</div>
-          <div class="card-model">${a.model}</div>
-        </div>
-      </div>
-      <div class="card-status" id="status-${a.id}"></div>
-      ${a.id === 'miniature' ? `
-        <div class="style-tabs" id="styles-miniature"></div>
-        <img class="card-img" id="img-miniature" alt="miniature" />
-        <div class="img-nav" id="nav-miniature" style="display:none">
-          <button onclick="prevStyle()">◀</button>
-          <span id="nav-label-miniature" style="font-size:11px;color:var(--muted)"></span>
-          <button onclick="nextStyle()">▶</button>
-        </div>
-      ` : `<div class="card-output" id="out-${a.id}"></div>`}
-      <div class="card-foot">
-        <button class="btn-run" id="btn-${a.id}" onclick="runAgent('${a.id}')">Lancer</button>
-        ${a.id !== 'miniature' ? `<button class="btn-copy" id="copy-${a.id}" onclick="copyOut('${a.id}')">📋</button>` : ''}
-      </div>
-    </div>
-  `).join("");
-}
+function getCtx() { return localStorage.getItem("channel_ctx") || DEFAULT_CTX; }
+function getKey() { return (localStorage.getItem("groq_key") || "").replace(/\s+/g, ""); }
 
-async function runAgent(id) {
-  const sujet = document.getElementById("sujet").value.trim();
-  if (!sujet) { alert("Entre un sujet d'abord."); return; }
-  const agent = AGENTS.find(a => a.id === id);
-  const card   = document.getElementById("card-" + id);
-  const out    = document.getElementById("out-" + id);
-  const status = document.getElementById("status-" + id);
-  const btn    = document.getElementById("btn-" + id);
-  const copy   = document.getElementById("copy-" + id);
-
-  card.className = "card running";
-  status.textContent = "En cours...";
-  status.className = "card-status running";
-  if (out) { out.textContent = ""; out.classList.remove("visible"); }
-  if (copy) copy.classList.remove("visible");
-  btn.disabled = true;
-
-  try {
-    if (agent.groq_model === null) {
-      await generateMiniature(agent, sujet, agent.styleIdx || 0);
-      card.className = "card done";
-      status.textContent = "✓ Image générée";
-      status.className = "card-status done";
-    } else {
-      const result = await callGroq(agent, sujet);
-      if (out) { out.textContent = result; out.classList.add("visible"); }
-      if (copy) copy.classList.add("visible");
-      card.className = "card done";
-      status.textContent = "✓ Terminé";
-      status.className = "card-status done";
+// ===== Rendu du texte (markdown léger) =====
+// MD-START
+function md(src) {
+  const inl = s => esc(s)
+    .replace(/&lt;br\s*\/?&gt;/g, "<br>")
+    .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
+    .replace(/(^|[\s(])\*([^*\s][^*]*?)\*(?=[\s).,;:!?]|$)/g, "$1<em>$2</em>");
+  const lines = String(src).replace(/\r/g, "").split("\n");
+  let out = "", list = null;
+  const closeList = () => { if (list) { out += "</" + list + ">"; list = null; } };
+  for (let i = 0; i < lines.length; i++) {
+    const t = lines[i].trim();
+    if (!t) { closeList(); continue; }
+    if (t.startsWith("|") && i + 1 < lines.length && lines[i + 1].includes("-") && /^\s*\|?[\s:\-|]+\|?\s*$/.test(lines[i + 1])) {
+      closeList();
+      const rows = []; let j = i;
+      while (j < lines.length && lines[j].trim().startsWith("|")) { rows.push(lines[j].trim()); j++; }
+      const cells = r => r.replace(/^\||\|$/g, "").split("|").map(c => c.trim());
+      const head = cells(rows[0]), body = rows.slice(2);
+      out += '<div class="tbl"><table><thead><tr>' + head.map(h => "<th>" + inl(h) + "</th>").join("") + "</tr></thead><tbody>" +
+        body.map(r => "<tr>" + cells(r).map(c => "<td>" + inl(c) + "</td>").join("") + "</tr>").join("") + "</tbody></table></div>";
+      i = j - 1; continue;
     }
-  } catch(e) {
-    if (out) { out.textContent = "❌ " + e.message; out.classList.add("visible"); }
-    status.textContent = "❌ " + e.message;
-    status.className = "card-status error";
-    card.className = "card error";
+    let m;
+    if ((m = t.match(/^#{1,6}\s+(.*)$/))) { closeList(); out += "<h4>" + inl(m[1]) + "</h4>"; continue; }
+    if (/^(-{3,}|\*{3,})$/.test(t)) { closeList(); out += "<hr>"; continue; }
+    if ((m = t.match(/^[-*•]\s+(.*)$/))) { if (list !== "ul") { closeList(); out += "<ul>"; list = "ul"; } out += "<li>" + inl(m[1]) + "</li>"; continue; }
+    if ((m = t.match(/^(\d+)[.)]\s+(.*)$/))) { if (list !== "ol") { closeList(); out += '<ol start="' + m[1] + '">'; list = "ol"; } out += "<li>" + inl(m[2]) + "</li>"; continue; }
+    closeList(); out += "<p>" + inl(t) + "</p>";
   }
-  btn.disabled = false;
+  closeList();
+  return out;
+}
+// MD-END
+
+// ===== Utilitaires =====
+let toastTimer;
+function toast(msg) {
+  const t = $("toast"); t.textContent = msg; t.classList.add("show");
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove("show"), 2300);
+}
+
+async function copyText(txt) {
+  try { await navigator.clipboard.writeText(txt); return true; }
+  catch (e) {
+    try {
+      const ta = document.createElement("textarea");
+      ta.value = txt; ta.style.position = "fixed"; ta.style.opacity = "0";
+      document.body.appendChild(ta); ta.focus(); ta.select(); ta.setSelectionRange(0, txt.length);
+      const ok = document.execCommand("copy"); ta.remove(); return ok;
+    } catch (e2) { return false; }
+  }
+}
+
+function persist() {
+  try { localStorage.setItem("last_run", JSON.stringify({ sujet: $("sujet").value, results: state.results, resultSubject: state.resultSubject })); } catch (e) {}
+}
+function loadSaved() {
+  try {
+    const d = JSON.parse(localStorage.getItem("last_run") || "null");
+    if (d) {
+      $("sujet").value = d.sujet || "";
+      state.results = d.results || {};
+      state.resultSubject = d.resultSubject || "";
+      for (const id in state.results) state.status[id] = "done";
+    }
+  } catch (e) {}
+}
+
+function needSujet() {
+  const v = $("sujet").value.trim();
+  if (!v) {
+    const el = $("sujet"); el.classList.remove("shake"); void el.offsetWidth; el.classList.add("shake"); el.focus();
+    toast("Entre d'abord le sujet de ta vidéo");
+    return null;
+  }
+  return v;
+}
+
+// ===== Rendu =====
+function renderSuggestions() {
+  $("sugg").innerHTML = SUGGESTIONS.map((s, i) => '<button onclick="useSuggestion(' + i + ')">' + esc(s) + "</button>").join("");
+}
+function useSuggestion(i) { $("sujet").value = SUGGESTIONS[i]; persist(); toast("Sujet ajouté — lance les agents"); }
+
+function renderTabs() {
+  $("tabs").innerHTML = AGENTS.map(a =>
+    '<button class="tab' + (a.id === state.current ? " active" : "") + '" onclick="selectTab(\'' + a.id + '\')">' +
+    '<span class="dot ' + state.status[a.id] + '"></span><span>' + a.icon + "</span><span>" + esc(a.name) + "</span></button>"
+  ).join("");
+  const act = document.querySelector(".tab.active"), box = $("tabs");
+  if (act) box.scrollLeft = act.offsetLeft - (box.clientWidth - act.clientWidth) / 2;
+}
+
+function selectTab(id) { state.current = id; renderTabs(); renderPanel(); }
+
+function loadingBox(txt) { return '<div class="loading"><div class="spinner"></div><div>' + txt + "</div></div>"; }
+
+function errorBox(msg) {
+  let tip = "";
+  if (/invalid api key/i.test(msg)) tip = "Ta clé n'est pas acceptée. Crée-en une nouvelle sur console.groq.com et colle-la dans ⚙️ Réglages.";
+  else if (/does not exist|decommission|no access/i.test(msg)) tip = "Groq a retiré ce modèle. Préviens-moi pour que je mette l'app à jour.";
+  else if (/failed to fetch|network/i.test(msg)) tip = "Connexion impossible. Vérifie ton réseau ; si tu ouvres le fichier en local, héberge-le en https (GitHub Pages).";
+  else if (/rate|429|too many/i.test(msg)) tip = "Limite gratuite atteinte. Attends une minute puis relance.";
+  return '<div class="errbox"><strong>Erreur</strong><br>' + esc(msg) + (tip ? '<div class="tip">' + tip + "</div>" : "") + "</div>";
+}
+
+function textPanel(a) {
+  const st = state.status[a.id], has = !!state.results[a.id];
+  let html = '<div class="p-actions"><button class="btn primary" ' + (st === "running" ? "disabled" : "") + " onclick=\"runAgent('" + a.id + "')\">" +
+    (st === "running" ? "Analyse en cours…" : has ? "↻ Relancer" : "▶ Lancer cet agent") + "</button>" +
+    (has ? '<button class="btn" onclick="copyCurrent()">📋 Copier</button>' : "") + "</div>";
+  if (st === "running") html += loadingBox("L'agent travaille…<br>10 à 40 secondes");
+  else if (st === "error") html += errorBox(state.errors[a.id] || "Erreur inconnue");
+  else if (has) html += (state.resultSubject ? '<div class="subject-line">Sujet : ' + esc(state.resultSubject) + "</div>" : "") + '<div class="md">' + md(state.results[a.id]) + "</div>";
+  else html += '<div class="empty"><div class="big">' + a.icon + "</div>Entre un sujet en haut, puis lance cet agent<br>ou clique sur « Lancer les 7 agents ».</div>";
+  return html;
+}
+
+function thumbPanel(a) {
+  const st = state.status.miniature;
+  const chips = a.styles.map((s, i) => '<button class="chip' + (i === (a.styleIdx || 0) ? " active" : "") + '" onclick="pickStyle(' + i + ')">' + s.label + "</button>").join("");
+  let html = '<div class="chips">' + chips + "</div>";
+  html += '<div class="p-actions"><button class="btn primary" ' + (st === "running" ? "disabled" : "") + ' onclick="generateThumb()">' +
+    (st === "running" ? "Génération…" : state.thumbUrl ? "🔄 Nouvelle version" : "▶ Générer la miniature") + "</button>" +
+    (state.thumbUrl ? '<a class="btn" href="' + state.thumbUrl + '" target="_blank" rel="noopener">⤢ Ouvrir en grand</a>' : "") + "</div>";
+  if (st === "running") html += loadingBox("Création de l'image…<br>jusqu'à 30 secondes");
+  else if (st === "error") html += errorBox(state.errors.miniature || "Échec de la génération");
+  else if (state.thumbUrl) html += '<img class="thumb" src="' + state.thumbUrl + '" alt="Miniature générée"><div class="hint">Appui long sur l\'image pour l\'enregistrer. Change de style en haut pour comparer.</div>';
+  else html += '<div class="empty"><div class="big">🎨</div>Choisis un style puis génère la miniature.</div>';
+  return html;
+}
+
+function renderPanel() {
+  const a = agentById(state.current);
+  const head = '<div class="p-head"><div class="p-ico" style="background:' + a.bg + '">' + a.icon + '</div><div class="p-titles"><div class="p-name">' +
+    esc(a.name) + '</div><div class="p-desc">' + esc(DESC[a.id]) + '</div></div><div class="p-model">' + esc(a.model) + "</div></div>";
+  $("panel").innerHTML = head + (a.id === "miniature" ? thumbPanel(a) : textPanel(a));
+  renderFooter();
+}
+
+function renderFooter() {
+  const n = Object.keys(state.results).length;
+  $("footer-actions").innerHTML = n
+    ? '<button class="btn" onclick="copyAll()">📋 Tout copier (' + n + ')</button><button class="btn" onclick="clearAll()">🗑 Effacer</button>'
+    : "";
+}
+
+function updateRunBtn() {
+  const total = AGENTS.length;
+  const finished = AGENTS.filter(a => ["done", "error"].includes(state.status[a.id]) && state.running).length;
+  const btn = $("run-all-btn");
+  btn.disabled = state.running;
+  $("run-label").textContent = state.running ? "⏳ " + finished + "/" + total + " terminés…" : "⚡ Lancer les " + total + " agents";
+  $("run-fill").style.width = state.running ? (finished / total * 100) + "%" : "0";
+}
+
+function updateBanner() { $("banner").classList.toggle("show", !getKey()); }
+
+function refresh(id) {
+  renderTabs(); updateRunBtn();
+  if (!id || id === state.current) renderPanel(); else renderFooter();
+}
+
+// ===== Actions =====
+async function runAgent(id) {
+  if (id === "miniature") return generateThumb();
+  const sujet = needSujet(); if (!sujet) return;
+  if (!getKey()) { openSettings(); toast("Ajoute d'abord ta clé Groq"); return; }
+  const a = agentById(id);
+  state.status[id] = "running"; state.errors[id] = ""; state.resultSubject = sujet; refresh(id);
+  try {
+    state.results[id] = await callGroq(a, sujet);
+    state.status[id] = "done"; persist();
+  } catch (e) {
+    state.status[id] = "error"; state.errors[id] = e.message;
+  }
+  refresh(id);
+}
+
+function pickStyle(i) { agentById("miniature").styleIdx = i; generateThumb(); }
+
+function generateThumb() {
+  const sujet = needSujet(); if (!sujet) return Promise.resolve();
+  const a = agentById("miniature");
+  const url = "https://image.pollinations.ai/prompt/" + encodeURIComponent(a.styles[a.styleIdx || 0].prompt(sujet)) + "?width=1024&height=576&nologo=true&seed=" + Date.now();
+  state.status.miniature = "running"; state.errors.miniature = ""; refresh("miniature");
+  return new Promise(resolve => {
+    const img = new Image();
+    const timer = setTimeout(() => fail("Délai dépassé — réessaie"), 45000);
+    const fail = msg => { clearTimeout(timer); state.status.miniature = "error"; state.errors.miniature = msg; refresh("miniature"); resolve(); };
+    img.onload = () => { clearTimeout(timer); state.thumbUrl = url; state.status.miniature = "done"; refresh("miniature"); resolve(); };
+    img.onerror = () => fail("Échec de la génération d'image");
+    img.src = url;
+  });
 }
 
 async function runAll() {
-  const sujet = document.getElementById("sujet").value.trim();
-  if (!sujet) { alert("Entre un sujet d'abord."); return; }
-  const btn = document.getElementById("run-all-btn");
-  btn.disabled = true;
-  btn.textContent = "Agents en cours...";
+  const sujet = needSujet(); if (!sujet) return;
+  if (!getKey()) { openSettings(); toast("Ajoute d'abord ta clé Groq"); return; }
+  state.running = true;
+  AGENTS.forEach(a => { if (a.id !== "miniature") state.status[a.id] = "idle"; });
+  updateRunBtn();
   const jobs = [];
-  for (const a of AGENTS) { jobs.push(runAgent(a.id)); await new Promise(r => setTimeout(r, 400)); }
+  for (const a of AGENTS) { jobs.push(runAgent(a.id).then(updateRunBtn)); await new Promise(r => setTimeout(r, 400)); }
   await Promise.all(jobs);
-  btn.disabled = false;
-  btn.textContent = "⚡ Lancer tous les agents";
+  state.running = false; updateRunBtn();
+  const errs = AGENTS.filter(a => state.status[a.id] === "error").length;
+  toast(errs ? errs + " agent(s) en erreur — ouvre l'onglet concerné" : "Tous les agents ont terminé ✓");
 }
 
-function copyOut(id) {
-  const text = document.getElementById("out-" + id)?.textContent;
-  if (!text) return;
-  navigator.clipboard.writeText(text).then(() => {
-    const btn = document.getElementById("copy-" + id);
-    btn.textContent = "✓";
-    setTimeout(() => btn.textContent = "📋", 2000);
-  });
+async function copyCurrent() {
+  const t = state.results[state.current];
+  if (!t) return;
+  toast((await copyText(t)) ? "Copié ✓" : "Copie impossible");
 }
 
-buildGrid();
-loadSettings();
-buildStyleTabs(AGENTS.find(a => a.id === "miniature"));
-if (/iPhone|iPad/.test(navigator.userAgent) && !navigator.standalone) {
-  document.getElementById("install-bar").classList.add("show");
+async function copyAll() {
+  const parts = AGENTS.filter(a => state.results[a.id]).map(a => "=== " + a.name.toUpperCase() + " ===\n" + state.results[a.id]);
+  const head = state.resultSubject ? "SUJET : " + state.resultSubject + "\n\n" : "";
+  toast((await copyText(head + parts.join("\n\n"))) ? "Tout est copié ✓" : "Copie impossible");
 }
+
+function clearAll() {
+  if (!confirm("Effacer tous les résultats ?")) return;
+  AGENTS.forEach(a => { state.status[a.id] = "idle"; });
+  state.results = {}; state.errors = {}; state.thumbUrl = ""; state.resultSubject = "";
+  persist(); refresh();
+}
+
+// ===== Réglages =====
+function openSettings() {
+  $("groq-key").value = localStorage.getItem("groq_key") || "";
+  $("channel-ctx").value = getCtx();
+  showKeyStatus();
+  $("sheet-bg").classList.add("show"); $("sheet").classList.add("show");
+}
+function closeSettings() { $("sheet-bg").classList.remove("show"); $("sheet").classList.remove("show"); updateBanner(); }
+function showKeyStatus(msg, ok) {
+  const el = $("key-status"); const k = getKey();
+  if (msg) { el.textContent = msg; el.style.color = ok ? "var(--green)" : "var(--accent)"; return; }
+  el.textContent = k ? "Clé enregistrée (" + k.length + " caractères)" : "Aucune clé enregistrée";
+  el.style.color = k ? "var(--green)" : "var(--muted)";
+}
+function saveKey() {
+  const v = $("groq-key").value.replace(/\s+/g, "");
+  if (!v) { showKeyStatus("Colle ta clé d'abord", false); return; }
+  localStorage.setItem("groq_key", v);
+  showKeyStatus("✓ Clé enregistrée (" + v.length + " caractères)", true); updateBanner();
+}
+function saveCtx() {
+  localStorage.setItem("channel_ctx", $("channel-ctx").value.trim() || DEFAULT_CTX);
+  toast("Contexte enregistré ✓");
+}
+async function testKey() {
+  const v = $("groq-key").value.replace(/\s+/g, "") || getKey();
+  if (!v) { showKeyStatus("Colle ta clé d'abord", false); return; }
+  localStorage.setItem("groq_key", v); updateBanner();
+  showKeyStatus("Test en cours…", true);
+  try {
+    const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "Authorization": "Bearer " + v },
+      body: JSON.stringify({ model: "openai/gpt-oss-20b", messages: [{ role: "user", content: "Réponds OK" }], max_completion_tokens: 300, reasoning_effort: "low", include_reasoning: false })
+    });
+    const d = await res.json();
+    if (res.ok) showKeyStatus("✅ Clé valide, tout fonctionne", true);
+    else showKeyStatus("❌ " + (d.error?.message || "Clé invalide"), false);
+  } catch (e) { showKeyStatus("❌ " + e.message, false); }
+}
+
+// ===== Démarrage =====
+loadSaved();
+renderSuggestions();
+renderTabs();
+renderPanel();
+updateRunBtn();
+updateBanner();
+
 </script>
 </body>
 </html>
