@@ -10,21 +10,22 @@
 <title>ValoAgence IA</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
 <style>
-  :root { --bg:#0f0f0f;--surface:#1a1a1a;--surface2:#242424;--border:rgba(255,255,255,0.08);--text:#f0f0f0;--muted:#888;--accent:#ff4655;--green:#00d4aa;--warn:#f0a500; }
+  :root{--bg:#0f0f0f;--surface:#1a1a1a;--surface2:#242424;--border:rgba(255,255,255,0.08);--text:#f0f0f0;--muted:#888;--accent:#ff4655;--green:#00d4aa;--warn:#f0a500;}
   *{box-sizing:border-box;margin:0;padding:0;}
   body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;padding-bottom:100px;}
   header{padding:20px 20px 0;display:flex;align-items:center;justify-content:space-between;}
   .logo{font-family:'Syne',sans-serif;font-weight:800;font-size:22px;}
   .logo span{color:var(--accent);}
   .badge{font-size:11px;background:rgba(255,70,85,0.15);color:var(--accent);border:1px solid rgba(255,70,85,0.3);padding:3px 8px;border-radius:20px;}
-  .key-section{margin:16px 20px;background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;}
+  .key-section{margin:16px 20px 12px;background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;}
   .key-toggle{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;cursor:pointer;}
   .key-toggle span{font-size:13px;color:var(--muted);}
   .key-body{display:none;padding:0 16px 16px;border-top:1px solid var(--border);}
   .key-body.open{display:block;}
   .key-body label{display:block;font-size:11px;color:var(--muted);margin:12px 0 4px;text-transform:uppercase;letter-spacing:.5px;}
-  .key-body input{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--text);font-size:13px;font-family:'DM Sans',sans-serif;}
-  .key-body input:focus{outline:1px solid var(--accent);}
+  .key-body input,.key-body textarea{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--text);font-size:13px;font-family:'DM Sans',sans-serif;}
+  .key-body textarea{resize:vertical;min-height:90px;line-height:1.5;}
+  .key-body input:focus,.key-body textarea:focus{outline:1px solid var(--accent);}
   .key-hint{font-size:11px;color:var(--muted);margin-top:4px;}
   .key-hint a{color:var(--accent);}
   .save-btn{margin-top:10px;width:100%;padding:10px;background:var(--accent);color:white;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Syne',sans-serif;}
@@ -50,7 +51,7 @@
   .card-status.running{color:var(--warn);}
   .card-status.done{color:var(--green);}
   .card-status.error{color:var(--accent);}
-  .card-output{font-size:12px;line-height:1.6;color:#ccc;background:var(--surface2);border-radius:8px;padding:10px;display:none;max-height:200px;overflow-y:auto;white-space:pre-wrap;word-break:break-word;}
+  .card-output{font-size:12px;line-height:1.6;color:#ccc;background:var(--surface2);border-radius:8px;padding:10px;display:none;max-height:260px;overflow-y:auto;white-space:pre-wrap;word-break:break-word;}
   .card-output.visible{display:block;}
   .card-img{border-radius:8px;width:100%;display:none;}
   .card-img.visible{display:block;}
@@ -76,18 +77,21 @@
   <div class="badge">7 agents IA</div>
 </header>
 
-<div style="height:16px"></div>
-
 <div class="key-section">
   <div class="key-toggle" onclick="this.nextElementSibling.classList.toggle('open')">
-    <span>⚙ Clé API Groq</span><span>▾</span>
+    <span>⚙ Réglages (clé API + contexte chaîne)</span><span>▾</span>
   </div>
   <div class="key-body">
     <label>Clé Groq — une seule clé pour tous les agents</label>
     <input type="password" id="groq-key" placeholder="gsk_..." />
     <div class="key-hint">Gratuit sur <a href="https://console.groq.com" target="_blank">console.groq.com</a></div>
-    <button class="save-btn" onclick="saveKey()">Enregistrer</button>
+    <button class="save-btn" onclick="saveKey()">Enregistrer la clé</button>
     <button class="test-btn" id="test-btn" onclick="testKey()">Tester la clé</button>
+
+    <label>Contexte de ta chaîne (lu par tous les agents)</label>
+    <textarea id="channel-ctx"></textarea>
+    <div class="key-hint">Mets à jour ton nombre d'abonnés, tes stats et tes objectifs : les agents s'adaptent.</div>
+    <button class="save-btn" onclick="saveCtx()">Enregistrer le contexte</button>
   </div>
 </div>
 
@@ -105,137 +109,122 @@
 </div>
 
 <script>
+const DEFAULT_CTX = "Chaîne YouTube francophone sur Valorant, pour les débutants qui veulent progresser en ranked en comprenant leurs erreurs. Chaîne en démarrage (environ 50 abonnés). Objectif : devenir une chaîne professionnelle, avec une audience fidèle, une identité reconnaissable, une régularité de publication et des revenus (partenariats, sponsoring, monétisation). Série de vidéos tutoriels déjà filmée, en cours de montage et de publication.";
+
+const SYSTEM_BASE = "Tu es un membre d'une agence de croissance YouTube spécialisée dans le gaming francophone. Tu travailles pour le créateur d'une chaîne dont l'objectif est de devenir professionnelle. Tu raisonnes comme un professionnel : tu fixes des priorités, tu donnes des actions concrètes et mesurables, tu pars de la réalité de la chaîne (taille actuelle de l'audience) et tu construis une progression par paliers plutôt que de promettre des résultats irréalistes. Tu évites le blabla et les généralités. Tu réponds toujours en français, de façon structurée et directe. Tu ne prétends pas disposer de données en temps réel : quand tu cites des chiffres, ce sont des ordres de grandeur ou des hypothèses, et tu le précises.";
+
 const AGENTS = [
   {
-    id: "recherche", name: "Chercheur", model: "Llama 3.3 · 70B", icon: "🔍", bg: "#1e3a5f",
-    groq_model: "llama-3.3-70b-versatile",
-    prompt: s => `Tu es un analyste data spécialisé croissance YouTube gaming francophone. Objectif : 100 000 vues par vidéo.
+    id: "recherche", name: "Stratège", model: "Llama 3.3 · 70B", icon: "🔍", bg: "#1e3a5f",
+    groq_model: "llama-3.3-70b-versatile", max_tokens: 1500,
+    role: "Tu es le stratège contenu et analyste d'audience de l'agence.",
+    prompt: s => `Sujet de la prochaine vidéo : "${s}".
 
-Sujet : "${s}" — série Valorant débutants ranked.
+Livre une note stratégique :
 
-1. POTENTIEL VIRAL : pourquoi ce sujet peut exploser
-2. ANGLE DIFFÉRENCIANT : ce que les autres créateurs ratent
-3. TOP 5 ERREURS DÉBUTANTS : les plus universelles et frustrantes
-4. HOOK PSYCHOLOGIQUE : quelle émotion exploiter pour maximiser le CTR
-5. MOTS-CLÉS : termes les plus recherchés par les débutants
-
-Sois direct, concret, orienté performance. En français.`
+1. DEMANDE RÉELLE : ce que les débutants Valorant cherchent vraiment sur ce sujet (intentions de recherche, questions précises, frustrations)
+2. POSITIONNEMENT : ce que font déjà les gros créateurs sur ce sujet, et l'angle qui permet à une petite chaîne de se démarquer
+3. TOP 5 ERREURS DÉBUTANTS liées au sujet : pour chacune, pourquoi elle est fréquente et le bon réflexe
+4. PROMESSE DE LA VIDÉO : une phrase claire (ce que le spectateur saura faire après)
+5. HOOK ÉMOTIONNEL : l'émotion à activer et pourquoi
+6. MOTS-CLÉS : 8 requêtes que les débutants tapent réellement
+7. RISQUES : ce qui pourrait faire flopper cette vidéo et comment l'éviter`
   },
   {
     id: "script", name: "Scénariste", model: "Llama 3.3 · 70B", icon: "📝", bg: "#1a3d2e",
-    groq_model: "llama-3.3-70b-versatile",
-    prompt: s => `Tu es scénariste YouTube expert en rétention et viralité gaming francophone. Objectif : 100 000 vues minimum.
+    groq_model: "llama-3.3-70b-versatile", max_tokens: 1500,
+    role: "Tu es le scénariste en chef, expert en rétention d'audience et en storytelling pédagogique.",
+    prompt: s => `Sujet de la vidéo : "${s}".
 
-Sujet : "${s}" — série Valorant débutants ranked.
+Propose 3 AXES NARRATIFS différents. Pour chaque axe, donne :
+- Le concept en une phrase et le titre de travail
+- L'ACCROCHE écrite mot pour mot (les 15 premières secondes)
+- Le plan en 5 à 7 séquences avec la durée de chacune
+- Les points de relance de l'attention (pattern interrupts, teasing, open loops) placés dans le plan
+- Le moment de la démonstration ou preuve (gameplay, exemple, avant/après)
+- La conclusion et l'appel à l'action (abonnement + vidéo suivante)
+- Le niveau de risque et le potentiel de rétention (faible / moyen / fort) avec une justification
 
-Propose 3 AXES NARRATIFS :
-
-AXE 1 — L erreur que TOUT LE MONDE fait
-Accroche (0-15s) + structure + twist + CTA + potentiel rétention
-
-AXE 2 — La transformation before/after
-Accroche (0-15s) + structure + twist + CTA + potentiel rétention
-
-AXE 3 — L angle contre-intuitif
-Accroche (0-15s) + structure + twist + CTA + potentiel rétention
-
-Pour chaque axe : durée idéale et pourquoi ca peut exploser. En français.`
+Termine par ta RECOMMANDATION : quel axe choisir pour cette étape de la chaîne et pourquoi.`
   },
   {
-    id: "seo", name: "Titre & SEO", model: "Llama 3.3 · 70B", icon: "📈", bg: "#3d2a0a",
-    groq_model: "llama-3.3-70b-versatile",
-    prompt: s => `Tu es expert SEO YouTube gaming francophone. Objectif : maximiser CTR et atteindre 100 000 vues.
+    id: "seo", name: "Titre & SEO", model: "Llama 3.1 · 8B", icon: "📈", bg: "#3d2a0a",
+    groq_model: "llama-3.1-8b-instant", max_tokens: 1200,
+    role: "Tu es l'expert packaging et SEO YouTube de l'agence.",
+    prompt: s => `Sujet de la vidéo : "${s}".
 
-Sujet : "${s}" — série Valorant débutants ranked.
-
-TITRES (3 options classées par potentiel CTR)
-- Titre A avec score CTR estimé /10
-- Titre B avec score CTR estimé /10
-- Titre C avec score CTR estimé /10
-
-DESCRIPTION (150 mots optimisée)
-
-TAGS (15 tags du plus au moins compétitif)
-
-STRATÉGIE BOOST : meilleur moment de publication + communautés + idée Short
-
-En français.`
+Livre :
+1. TITRES : 5 titres (60 caractères max) répartis en 5 angles : curiosité, erreur à éviter, résultat promis, chiffre/liste, émotion. Indique pour chacun le point fort et le risque (clickbait ou flou).
+2. TITRE RECOMMANDÉ et pourquoi
+3. DESCRIPTION : 2 premières lignes très accrocheuses (visibles avant « afficher plus »), puis un corps de description avec mots-clés naturels, chapitres horodatés à compléter, liens et appel à l'action
+4. TAGS : 15 tags du plus précis au plus large
+5. PACKAGING : cohérence titre + miniature (le titre ne doit pas répéter le texte de la miniature)
+6. ÉPINGLER : un commentaire à épingler qui relance l'engagement
+7. SHORTS : 3 idées de Shorts à extraire de cette vidéo`
   },
   {
     id: "miniature", name: "Miniature", model: "Pollinations.ai", icon: "🎨", bg: "#3d1a2e",
     groq_model: null, styleIdx: 0,
     styles: [
-      { label: "🔥 Choc",  prompt: s => `YouTube high CTR thumbnail Valorant beginner ${s}, extreme shocked face, giant red X warning, neon red black lighting, bold white impact font, viral style` },
-      { label: "💡 Tuto",  prompt: s => `YouTube tutorial thumbnail Valorant ${s}, clean split before after, blue orange contrast, upward arrow, bright flat design, bold sans-serif text` },
-      { label: "😤 Rage",  prompt: s => `YouTube viral thumbnail Valorant rank fail ${s}, exaggerated rage face, fire explosion, broken keyboard, comic style, orange red contrast, bold fat text` },
-      { label: "🎯 Pro",   prompt: s => `YouTube premium thumbnail Valorant ${s}, cinematic dark scene, agent silhouette glowing crosshair, gold rank emblem, sleek minimal typography, 4K esports` }
+      { label: "🔥 Choc",  prompt: s => `YouTube thumbnail, Valorant beginner mistake ${s}, extreme shocked face close-up, large red warning sign, neon red and black lighting, high contrast, bold white text, strong focal point` },
+      { label: "💡 Tuto",  prompt: s => `YouTube tutorial thumbnail, Valorant ${s}, clean before and after split, blue and orange contrast, upward arrow, bright flat design, one large word of text` },
+      { label: "😤 Rage",  prompt: s => `YouTube thumbnail, Valorant rank fail ${s}, exaggerated frustrated gamer face, flames, broken keyboard, comic style, orange red yellow contrast, bold thick text` },
+      { label: "🎯 Pro",   prompt: s => `YouTube premium thumbnail, Valorant ${s}, cinematic dark scene, agent silhouette, glowing crosshair, gold rank emblem, minimal typography, dramatic spotlight, esports quality` }
     ]
   },
   {
     id: "coaching", name: "Coach Valo", model: "Llama 3.3 · 70B", icon: "🧠", bg: "#2a1a1a",
-    groq_model: "llama-3.3-70b-versatile",
-    prompt: s => `Tu es coach Valorant professionnel et psychologue du sport spécialisé esport. Tu as coaché des joueurs de Bronze à Diamond.
+    groq_model: "llama-3.3-70b-versatile", max_tokens: 1500,
+    role: "Tu es coach Valorant expert, doublé d'un préparateur mental spécialisé en esport. Tu as coaché des joueurs de Bronze à Diamant.",
+    prompt: s => `Sujet de la vidéo : "${s}".
 
-Sujet : "${s}" — série Valorant débutants ranked.
+Livre le contenu de coaching qui rend la vidéo vraiment utile :
 
 VOLET 1 — CORRECTION TECHNIQUE
-Pour chaque erreur liée au sujet :
-- L erreur exacte et pourquoi elle se produit
-- Exercice concret pour la corriger (durée + fréquence)
-- Comment mesurer sa progression
+Pour chaque erreur liée au sujet : l'erreur exacte, sa cause (habitude, réflexe, mauvaise information), un exercice concret avec durée et fréquence, et un critère simple pour mesurer le progrès. Ajoute un exercice à faire en mode entraînement ou en partie personnalisée.
 
-VOLET 2 — DÉVELOPPEMENT MENTAL
-- Le pattern mental toxique lié à ce sujet
-- Technique de reset mental immédiat utilisable en partie
-- Routine pré-game pour aborder ce sujet avec le bon état d esprit
-- Mindset de pro à adopter
+VOLET 2 — MENTAL
+- Le piège mental associé à ce sujet (tilt, ego, impatience, peur de perdre des points)
+- Une technique de reset utilisable en pleine partie (30 secondes maximum)
+- Une routine avant la partie
+- Un état d'esprit à adopter, formulé simplement
 
-BONUS CRÉATEUR
-- Comment présenter ce coaching pour que les spectateurs ressentent une vraie transformation
+VOLET 3 — PLAN SUR 7 JOURS
+Un mini programme jour par jour que le spectateur peut suivre (15 à 30 minutes par jour).
 
-En français, bienveillant mais exigeant.`
+BONUS CRÉATEUR : comment mettre ce coaching en scène à l'écran pour que le spectateur sente une progression, et quel défi proposer en commentaire pour créer de l'engagement.`
   },
   {
     id: "planning", name: "Planning", model: "Llama 3.1 · 8B", icon: "📅", bg: "#1a3320",
-    groq_model: "llama-3.1-8b-instant",
-    prompt: s => `Tu es stratège de contenu YouTube gaming francophone. Objectif : 100 000 vues par vidéo.
+    groq_model: "llama-3.1-8b-instant", max_tokens: 1400,
+    role: "Tu es le directeur de chaîne : tu construis la roadmap de croissance et la ligne éditoriale.",
+    prompt: s => `Vidéo en cours : "${s}".
 
-Vidéo actuelle : "${s}" — série Valorant débutants ranked.
+Livre un plan de chaîne :
 
-CALENDRIER 6 SEMAINES
-Pour chaque semaine : sujet + titre + angle narratif + lien avec vidéo précédente + format recommandé
-
-STRATÉGIE DE SÉRIE
-- Comment créer une dépendance narrative entre les vidéos
-- Idées de Shorts à publier entre les vidéos longues
-
-OBJECTIFS DE PROGRESSION
-- Vues attendues par vidéo
-- Indicateurs à surveiller (CTR, rétention, abonnés/vidéo)
-
-En français, concret et actionnable.`
+1. IDENTITÉ : promesse de la chaîne en une phrase, public cible, ton, 3 piliers de contenu, nom de la série et structure récurrente (intro, rubrique, outro) pour être reconnaissable
+2. CALENDRIER 6 SEMAINES : pour chaque semaine, vidéo longue (sujet, titre de travail, rôle dans la série) et 2 Shorts
+3. RÉGULARITÉ : rythme de publication réaliste pour un créateur seul avec un travail à côté
+4. SÉRIE : comment relier les vidéos entre elles (teasing, fin de vidéo qui renvoie vers la suivante, playlist)
+5. ROADMAP PAR PALIERS : 0 à 100 abonnés, 100 à 1000, 1000 à 4000 heures de visionnage (conditions de monétisation) : objectifs et priorités de chaque palier
+6. INDICATEURS À SUIVRE : CTR, rétention moyenne, abonnés gagnés par vidéo, et à partir de quelles valeurs agir
+7. ERREURS À ÉVITER à cette étape`
   },
   {
-    id: "partenariat", name: "Partenariat", model: "Llama 3.1 · 8B", icon: "🤝", bg: "#2a1a3d",
-    groq_model: "llama-3.1-8b-instant",
-    prompt: s => `Tu es manager d influenceurs gaming expert en négociation de partenariats pour créateurs YouTube.
+    id: "partenariat", name: "Partenariat", model: "Llama 3.3 · 70B", icon: "🤝", bg: "#2a1a3d",
+    groq_model: "llama-3.3-70b-versatile", max_tokens: 1500,
+    role: "Tu es le responsable partenariats et monétisation de l'agence, spécialisé dans les créateurs gaming.",
+    prompt: s => `Vidéo en cours : "${s}".
 
-Contexte : chaîne Valorant débutants ranked, vidéo sur "${s}", objectif 100 000 vues/vidéo.
+Livre un plan de monétisation et de partenariats réaliste pour cette étape de la chaîne :
 
-EMAIL DE PROSPECTION (200 mots max)
-- Objet irrésistible + corps : accroche, pitch chiffré, proposition de valeur, CTA
-
-MARQUES À CIBLER
-- 5 marques gaming pertinentes avec type de deal à proposer
-
-ARGUMENTAIRE DE VENTE
-- Profil de l audience + comment présenter ses stats même avec peu d abonnés
-
-TARIFICATION INDICATIVE
-- Grille de prix selon vues par vidéo
-- Ce qu il ne faut jamais accepter
-
-En français, direct et professionnel.`
+1. SOURCES DE REVENUS : classe par ordre de priorité (programme YouTube, affiliation, codes promo, sponsoring, coaching, produits), avec ce qui est accessible dès maintenant et ce qui demande plus d'audience
+2. MARQUES À CONTACTER : 6 marques ou services pertinents pour une audience de joueurs Valorant débutants, avec le type de deal adapté à une petite chaîne (affiliation, produit contre contenu, code promo)
+3. EMAIL DE PROSPECTION (180 mots max) : objet + corps, sans exagérer les chiffres, avec une proposition de valeur claire
+4. RELANCE : un message de relance à envoyer 7 jours après
+5. DOSSIER DE PRÉSENTATION : les 6 éléments à mettre dans un media kit simple
+6. NÉGOCIATION : ce qu'il faut demander et ce qu'il faut refuser
+7. ÉTAPES : ce qu'il faut atteindre (abonnés, vues, engagement) avant de viser des sponsors plus importants`
   }
 ];
 
@@ -243,13 +232,26 @@ function saveKey() {
   const val = document.getElementById("groq-key").value.replace(/\s+/g, "").trim();
   if (!val) return;
   localStorage.setItem("groq_key", val);
-  const btn = document.querySelector(".save-btn");
-  btn.textContent = "✓ Enregistré (" + val.length + " chars)";
-  setTimeout(() => btn.textContent = "Enregistrer", 3000);
+  const btn = document.querySelectorAll(".save-btn")[0];
+  btn.textContent = "✓ Enregistrée (" + val.length + " caractères)";
+  setTimeout(() => btn.textContent = "Enregistrer la clé", 3000);
 }
 
-function loadKey() {
+function saveCtx() {
+  const val = document.getElementById("channel-ctx").value.trim();
+  localStorage.setItem("channel_ctx", val || DEFAULT_CTX);
+  const btn = document.querySelectorAll(".save-btn")[1];
+  btn.textContent = "✓ Contexte enregistré";
+  setTimeout(() => btn.textContent = "Enregistrer le contexte", 2500);
+}
+
+function getCtx() {
+  return localStorage.getItem("channel_ctx") || DEFAULT_CTX;
+}
+
+function loadSettings() {
   document.getElementById("groq-key").value = localStorage.getItem("groq_key") || "";
+  document.getElementById("channel-ctx").value = getCtx();
 }
 
 async function testKey() {
@@ -271,21 +273,35 @@ async function testKey() {
   setTimeout(() => btn.textContent = "Tester la clé", 4000);
 }
 
-async function callGroq(prompt, model) {
+async function callGroq(agent, sujet, attempt) {
+  attempt = attempt || 0;
   const key = localStorage.getItem("groq_key");
-  if (!key) throw new Error("Clé Groq manquante — configure-la en haut");
+  if (!key) throw new Error("Clé Groq manquante — configure-la dans Réglages");
   const cleanKey = key.replace(/\s+/g, "").trim();
+  const system = SYSTEM_BASE + " " + agent.role + "\n\nContexte de la chaîne : " + getCtx();
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 30000);
+  const timeout = setTimeout(() => controller.abort(), 60000);
   try {
     const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST",
       signal: controller.signal,
       headers: { "Content-Type": "application/json", "Authorization": "Bearer " + cleanKey },
-      body: JSON.stringify({ model: model, messages: [{ role: "user", content: prompt }], max_tokens: 900, temperature: 0.7 })
+      body: JSON.stringify({
+        model: agent.groq_model,
+        messages: [
+          { role: "system", content: system },
+          { role: "user", content: agent.prompt(sujet) }
+        ],
+        max_tokens: agent.max_tokens || 1200,
+        temperature: 0.7
+      })
     });
     clearTimeout(timeout);
     const data = await res.json();
+    if (res.status === 429 && attempt < 2) {
+      await new Promise(r => setTimeout(r, 8000 * (attempt + 1)));
+      return callGroq(agent, sujet, attempt + 1);
+    }
     if (!res.ok) throw new Error(data.error?.message || "Erreur API " + res.status);
     return data.choices[0].message.content;
   } catch(e) {
@@ -403,7 +419,7 @@ async function runAgent(id) {
       status.textContent = "✓ Image générée";
       status.className = "card-status done";
     } else {
-      const result = await callGroq(agent.prompt(sujet), agent.groq_model);
+      const result = await callGroq(agent, sujet);
       if (out) { out.textContent = result; out.classList.add("visible"); }
       if (copy) copy.classList.add("visible");
       card.className = "card done";
@@ -425,8 +441,11 @@ async function runAll() {
   const btn = document.getElementById("run-all-btn");
   btn.disabled = true;
   btn.textContent = "Agents en cours...";
-  for (const a of AGENTS) { runAgent(a.id); await new Promise(r => setTimeout(r, 300)); }
-  setTimeout(() => { btn.disabled = false; btn.textContent = "⚡ Lancer tous les agents"; }, 6000);
+  const jobs = [];
+  for (const a of AGENTS) { jobs.push(runAgent(a.id)); await new Promise(r => setTimeout(r, 400)); }
+  await Promise.all(jobs);
+  btn.disabled = false;
+  btn.textContent = "⚡ Lancer tous les agents";
 }
 
 function copyOut(id) {
@@ -440,7 +459,7 @@ function copyOut(id) {
 }
 
 buildGrid();
-loadKey();
+loadSettings();
 buildStyleTabs(AGENTS.find(a => a.id === "miniature"));
 if (/iPhone|iPad/.test(navigator.userAgent) && !navigator.standalone) {
   document.getElementById("install-bar").classList.add("show");
