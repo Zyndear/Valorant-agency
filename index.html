@@ -111,6 +111,16 @@
   .sheet a{color:var(--accent);}
   #key-status{font-size:13px;margin-top:8px;min-height:18px;}
 
+  .badge{background:var(--accent);color:#fff;border-radius:999px;font-size:11px;font-weight:700;padding:1px 7px;}
+  .tasks{margin-top:22px;padding-top:16px;border-top:1px solid var(--border);}
+  .tasks-title{font-family:'Syne',sans-serif;font-weight:700;font-size:15px;margin-bottom:10px;}
+  .task{display:flex;align-items:flex-start;gap:12px;width:100%;text-align:left;background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:12px;margin-bottom:8px;cursor:pointer;font-size:14.5px;line-height:1.45;}
+  .task .cb{flex:0 0 24px;height:24px;border-radius:7px;border:2px solid #555;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#000;}
+  .task.done .cb{background:var(--green);border-color:var(--green);}
+  .task.done .tt{text-decoration:line-through;color:var(--muted);}
+  .progress{height:8px;background:var(--surface2);border-radius:99px;overflow:hidden;margin:4px 0 16px;}
+  .progress div{height:100%;background:var(--green);transition:width .3s;}
+  .group-title{font-family:'Syne',sans-serif;font-weight:700;font-size:14px;margin:18px 0 8px;display:flex;align-items:center;gap:8px;}
   .toast{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom) + 24px);transform:translate(-50%,20px);background:#2b2b2b;border:1px solid var(--border);padding:11px 16px;border-radius:12px;font-size:14px;opacity:0;pointer-events:none;transition:.25s;z-index:80;max-width:90%;text-align:center;}
   .toast.show{opacity:1;transform:translate(-50%,0);}
 </style>
@@ -177,7 +187,7 @@ const AGENTS = [
   {
     id: "recherche", name: "Stratège", model: "GPT-OSS 120B", icon: "🔍", bg: "#1e3a5f",
     groq_model: "openai/gpt-oss-120b", max_tokens: 4000,
-    role: "Tu es le stratège contenu et analyste d'audience de l'agence.",
+    role: "Tu es le stratège contenu et analyste d'audience de l'agence. Expertise : intention de recherche sur YouTube (recherche, suggérés, accueil), lecture du couple CTR × rétention, positionnement d'une petite chaîne face aux gros créateurs, packaging avant production. Tu distingues toujours ce qui est un fait, une hypothèse et un test à faire.",
     prompt: s => `Sujet de la prochaine vidéo : "${s}".
 
 Livre une note stratégique :
@@ -193,7 +203,7 @@ Livre une note stratégique :
   {
     id: "script", name: "Scénariste", model: "GPT-OSS 120B", icon: "📝", bg: "#1a3d2e",
     groq_model: "openai/gpt-oss-120b", max_tokens: 4000,
-    role: "Tu es le scénariste en chef, expert en rétention d'audience et en storytelling pédagogique.",
+    role: "Tu es le scénariste en chef de l'agence. Expertise : structure accroche-promesse-preuve, boucles ouvertes, pattern interrupts, rythme de montage, écriture pour l'oral, courbes de rétention. Tu écris des accroches réellement prononçables, jamais génériques.",
     prompt: s => `Sujet de la vidéo : "${s}".
 
 Propose 3 AXES NARRATIFS différents. Pour chaque axe, donne :
@@ -210,7 +220,7 @@ Termine par ta RECOMMANDATION : quel axe choisir pour cette étape de la chaîne
   {
     id: "seo", name: "Titre & SEO", model: "GPT-OSS 20B", icon: "📈", bg: "#3d2a0a",
     groq_model: "openai/gpt-oss-20b", max_tokens: 3000,
-    role: "Tu es l'expert packaging et SEO YouTube de l'agence.",
+    role: "Tu es l'expert packaging et SEO YouTube de l'agence. Expertise : cohérence titre + miniature, mots-clés d'intention, chapitres, description, commentaire épinglé, écrans de fin, Shorts comme porte d'entrée. Tu proposes des tests A/B simples à mener et dis ce qu'il faut mesurer.",
     prompt: s => `Sujet de la vidéo : "${s}".
 
 Livre :
@@ -235,7 +245,7 @@ Livre :
   {
     id: "coaching", name: "Coach Valo", model: "GPT-OSS 120B", icon: "🧠", bg: "#2a1a1a",
     groq_model: "openai/gpt-oss-120b", max_tokens: 4000,
-    role: "Tu es coach Valorant expert, doublé d'un préparateur mental spécialisé en esport. Tu as coaché des joueurs de Bronze à Diamant.",
+    role: "Tu es coach Valorant et préparateur mental esport. Expertise : entraînement délibéré, routines d'aim (champ de tir, deathmatch), placement du réticule, revue de VOD, gestion du tilt, communication d'équipe, progression par rang. Tu donnes des exercices précis avec durée, fréquence et critère de réussite.",
     prompt: s => `Sujet de la vidéo : "${s}".
 
 Livre le contenu de coaching qui rend la vidéo vraiment utile :
@@ -257,7 +267,7 @@ BONUS CRÉATEUR : comment mettre ce coaching en scène à l'écran pour que le s
   {
     id: "planning", name: "Planning", model: "GPT-OSS 20B", icon: "📅", bg: "#1a3320",
     groq_model: "openai/gpt-oss-20b", max_tokens: 3000,
-    role: "Tu es le directeur de chaîne : tu construis la roadmap de croissance et la ligne éditoriale.",
+    role: "Tu es le directeur de chaîne : tu construis la roadmap de croissance et la ligne éditoriale. Expertise : piliers de contenu, séries, production par lots pour un créateur seul, cadence réaliste, analytique YouTube Studio, conditions du programme partenaire YouTube (à faire vérifier dans YouTube Studio car elles évoluent).",
     prompt: s => `Vidéo en cours : "${s}".
 
 Livre un plan de chaîne :
@@ -273,7 +283,7 @@ Livre un plan de chaîne :
   {
     id: "partenariat", name: "Partenariat", model: "GPT-OSS 120B", icon: "🤝", bg: "#2a1a3d",
     groq_model: "openai/gpt-oss-120b", max_tokens: 4000,
-    role: "Tu es le responsable partenariats et monétisation de l'agence, spécialisé dans les créateurs gaming.",
+    role: "Tu es le responsable partenariats et monétisation de l'agence, spécialisé dans les créateurs gaming. Expertise : affiliation et codes promo, media kit, grille tarifaire, prospection à froid et relances, négociation, transparence obligatoire sur les contenus sponsorisés. Tu adaptes toujours l'ambition à la taille réelle de la chaîne.",
     prompt: s => `Vidéo en cours : "${s}".
 
 Livre un plan de monétisation et de partenariats réaliste pour cette étape de la chaîne :
@@ -306,7 +316,7 @@ async function callGroq(agent, sujet, attempt) {
         model: agent.groq_model,
         messages: [
           { role: "system", content: system },
-          { role: "user", content: agent.prompt(sujet) }
+          { role: "user", content: buildUserMsg(agent, sujet) }
         ],
         max_completion_tokens: agent.max_tokens || 3000,
         reasoning_effort: "low",
@@ -347,7 +357,7 @@ const DESC = {
 };
 const SUGGESTIONS = ["Les erreurs de visée", "Le placement du crosshair", "Mal gérer son économie", "Jouer sans communiquer"];
 
-const state = { current: AGENTS[0].id, status: {}, results: {}, errors: {}, thumbUrl: "", resultSubject: "", running: false };
+const state = { current: AGENTS[0].id, status: {}, results: {}, errors: {}, thumbUrl: "", resultSubject: "", running: false, tasks: {}, stratSubject: "" };
 AGENTS.forEach(a => state.status[a.id] = "idle");
 const agentById = id => AGENTS.find(a => a.id === id);
 
@@ -409,7 +419,7 @@ async function copyText(txt) {
 }
 
 function persist() {
-  try { localStorage.setItem("last_run", JSON.stringify({ sujet: $("sujet").value, results: state.results, resultSubject: state.resultSubject })); } catch (e) {}
+  try { localStorage.setItem("last_run", JSON.stringify({ sujet: $("sujet").value, results: state.results, resultSubject: state.resultSubject, tasks: state.tasks, stratSubject: state.stratSubject })); } catch (e) {}
 }
 function loadSaved() {
   try {
@@ -417,7 +427,7 @@ function loadSaved() {
     if (d) {
       $("sujet").value = d.sujet || "";
       state.results = d.results || {};
-      state.resultSubject = d.resultSubject || "";
+      state.resultSubject = d.resultSubject || ""; state.tasks = d.tasks || {}; state.stratSubject = d.stratSubject || "";
       for (const id in state.results) state.status[id] = "done";
     }
   } catch (e) {}
@@ -443,7 +453,7 @@ function renderTabs() {
   $("tabs").innerHTML = AGENTS.map(a =>
     '<button class="tab' + (a.id === state.current ? " active" : "") + '" onclick="selectTab(\'' + a.id + '\')">' +
     '<span class="dot ' + state.status[a.id] + '"></span><span>' + a.icon + "</span><span>" + esc(a.name) + "</span></button>"
-  ).join("");
+  ).join("") + taskTabHtml();
   const act = document.querySelector(".tab.active"), box = $("tabs");
   if (act) box.scrollLeft = act.offsetLeft - (box.clientWidth - act.clientWidth) / 2;
 }
@@ -468,7 +478,7 @@ function textPanel(a) {
     (has ? '<button class="btn" onclick="copyCurrent()">📋 Copier</button>' : "") + "</div>";
   if (st === "running") html += loadingBox("L'agent travaille…<br>10 à 40 secondes");
   else if (st === "error") html += errorBox(state.errors[a.id] || "Erreur inconnue");
-  else if (has) html += (state.resultSubject ? '<div class="subject-line">Sujet : ' + esc(state.resultSubject) + "</div>" : "") + '<div class="md">' + md(state.results[a.id]) + "</div>";
+  else if (has) html += (state.resultSubject ? '<div class="subject-line">Sujet : ' + esc(state.resultSubject) + "</div>" : "") + '<div class="md">' + md(state.results[a.id]) + "</div>" + taskBlock(a.id);
   else html += '<div class="empty"><div class="big">' + a.icon + "</div>Entre un sujet en haut, puis lance cet agent<br>ou clique sur « Lancer les 7 agents ».</div>";
   return html;
 }
@@ -484,10 +494,11 @@ function thumbPanel(a) {
   else if (st === "error") html += errorBox(state.errors.miniature || "Échec de la génération");
   else if (state.thumbUrl) html += '<img class="thumb" src="' + state.thumbUrl + '" alt="Miniature générée"><div class="hint">Appui long sur l\'image pour l\'enregistrer. Change de style en haut pour comparer.</div>';
   else html += '<div class="empty"><div class="big">🎨</div>Choisis un style puis génère la miniature.</div>';
-  return html;
+  return html + taskBlock("miniature");
 }
 
 function renderPanel() {
+  if (state.current === "taches") { $("panel").innerHTML = tasksPanel(); renderFooter(); return; }
   const a = agentById(state.current);
   const head = '<div class="p-head"><div class="p-ico" style="background:' + a.bg + '">' + a.icon + '</div><div class="p-titles"><div class="p-name">' +
     esc(a.name) + '</div><div class="p-desc">' + esc(DESC[a.id]) + '</div></div><div class="p-model">' + esc(a.model) + "</div></div>";
@@ -515,7 +526,7 @@ function updateBanner() { $("banner").classList.toggle("show", !getKey()); }
 
 function refresh(id) {
   renderTabs(); updateRunBtn();
-  if (!id || id === state.current) renderPanel(); else renderFooter();
+  if (!id || id === state.current || state.current === "taches") renderPanel(); else renderFooter();
 }
 
 // ===== Actions =====
@@ -526,7 +537,11 @@ async function runAgent(id) {
   const a = agentById(id);
   state.status[id] = "running"; state.errors[id] = ""; state.resultSubject = sujet; refresh(id);
   try {
-    state.results[id] = await callGroq(a, sujet);
+    const raw = await callGroq(a, sujet);
+    const sp = splitTasks(raw);
+    state.results[id] = sp.body || raw;
+    state.tasks[id] = sp.tasks.map(t => ({ t: t, d: false }));
+    if (id === "recherche") state.stratSubject = sujet;
     state.status[id] = "done"; persist();
   } catch (e) {
     state.status[id] = "error"; state.errors[id] = e.message;
@@ -545,7 +560,7 @@ function generateThumb() {
     const img = new Image();
     const timer = setTimeout(() => fail("Délai dépassé — réessaie"), 45000);
     const fail = msg => { clearTimeout(timer); state.status.miniature = "error"; state.errors.miniature = msg; refresh("miniature"); resolve(); };
-    img.onload = () => { clearTimeout(timer); state.thumbUrl = url; state.status.miniature = "done"; refresh("miniature"); resolve(); };
+    img.onload = () => { clearTimeout(timer); state.thumbUrl = url; state.status.miniature = "done"; if (!(state.tasks.miniature || []).length) state.tasks.miniature = THUMB_TASKS.map(t => ({ t: t, d: false })); persist(); refresh("miniature"); resolve(); };
     img.onerror = () => fail("Échec de la génération d'image");
     img.src = url;
   });
@@ -557,8 +572,9 @@ async function runAll() {
   state.running = true;
   AGENTS.forEach(a => { if (a.id !== "miniature") state.status[a.id] = "idle"; });
   updateRunBtn();
+  await runAgent("recherche"); updateRunBtn();
   const jobs = [];
-  for (const a of AGENTS) { jobs.push(runAgent(a.id).then(updateRunBtn)); await new Promise(r => setTimeout(r, 400)); }
+  for (const a of AGENTS.filter(x => x.id !== "recherche")) { jobs.push(runAgent(a.id).then(updateRunBtn)); await new Promise(r => setTimeout(r, 400)); }
   await Promise.all(jobs);
   state.running = false; updateRunBtn();
   const errs = AGENTS.filter(a => state.status[a.id] === "error").length;
@@ -572,7 +588,7 @@ async function copyCurrent() {
 }
 
 async function copyAll() {
-  const parts = AGENTS.filter(a => state.results[a.id]).map(a => "=== " + a.name.toUpperCase() + " ===\n" + state.results[a.id]);
+  const parts = AGENTS.filter(a => state.results[a.id]).map(a => "=== " + a.name.toUpperCase() + " ===\n" + state.results[a.id] + tasksText(a.id));
   const head = state.resultSubject ? "SUJET : " + state.resultSubject + "\n\n" : "";
   toast((await copyText(head + parts.join("\n\n"))) ? "Tout est copié ✓" : "Copie impossible");
 }
@@ -580,7 +596,7 @@ async function copyAll() {
 function clearAll() {
   if (!confirm("Effacer tous les résultats ?")) return;
   AGENTS.forEach(a => { state.status[a.id] = "idle"; });
-  state.results = {}; state.errors = {}; state.thumbUrl = ""; state.resultSubject = "";
+  state.results = {}; state.tasks = {}; state.stratSubject = ""; state.errors = {}; state.thumbUrl = ""; state.resultSubject = "";
   persist(); refresh();
 }
 
@@ -623,6 +639,79 @@ async function testKey() {
     if (res.ok) showKeyStatus("✅ Clé valide, tout fonctionne", true);
     else showKeyStatus("❌ " + (d.error?.message || "Clé invalide"), false);
   } catch (e) { showKeyStatus("❌ " + e.message, false); }
+}
+
+// ===== Tâches =====
+const TASK_INSTRUCTION = "\n\nTermine OBLIGATOIREMENT par une section intitulée exactement « ## TÂCHES À RÉALISER » avec 3 à 6 tâches concrètes dans ton domaine, une par ligne, au format : - [ ] Action précise (échéance : aujourd'hui / cette semaine / ce mois, durée : 20 min). Une tâche = une action vérifiable qu'une seule personne peut faire avec un téléphone ou un PC. Pas de généralités.";
+const THUMB_TASKS = [
+  "Regarder la miniature en tout petit (taille d'une vignette mobile) : le texte et le visage restent-ils lisibles ? (aujourd'hui, 2 min)",
+  "Limiter le texte à 4 mots maximum et vérifier qu'il ne répète pas le titre (aujourd'hui, 5 min)",
+  "Générer 2 styles différents et en choisir un pour tester contre l'autre (cette semaine, 10 min)"
+];
+
+function splitTasks(text) {
+  const m = text.match(/^\s*(?:#{1,6}\s*)?\**\s*T[ÂA]CHES[^\n]*$/im);
+  if (!m) return { body: text.trim(), tasks: [] };
+  const body = text.slice(0, m.index).trim();
+  const tasks = text.slice(m.index + m[0].length).split("\n").map(l => l.trim()).map(l => {
+    const mm = l.match(/^[-*•]\s*(?:\[[ xX]?\]\s*)?(.+)$/) || l.match(/^\d+[.)]\s*(?:\[[ xX]?\]\s*)?(.+)$/);
+    return mm ? mm[1].replace(/\*\*/g, "").trim() : null;
+  }).filter(Boolean).slice(0, 8);
+  return { body, tasks };
+}
+
+function buildUserMsg(agent, sujet) {
+  let msg = agent.prompt(sujet);
+  if (agent.id !== "recherche" && state.status.recherche === "done" && state.stratSubject === sujet && state.results.recherche) {
+    msg += "\n\nNote préalable du Stratège (appuie-toi dessus, ne la recopie pas) :\n" + state.results.recherche.slice(0, 3000);
+  }
+  return msg + TASK_INSTRUCTION;
+}
+
+function taskRows(id) {
+  return (state.tasks[id] || []).map((x, i) =>
+    '<button class="task' + (x.d ? " done" : "") + '" onclick="toggleTask(\'' + id + "'," + i + ')"><span class="cb">' + (x.d ? "✓" : "") + '</span><span class="tt">' + esc(x.t) + "</span></button>").join("");
+}
+function taskBlock(id) {
+  if (!(state.tasks[id] || []).length) return "";
+  return '<div class="tasks"><div class="tasks-title">✅ Tâches à réaliser</div>' + taskRows(id) + "</div>";
+}
+function taskCounts() {
+  let total = 0, done = 0;
+  for (const id in state.tasks) for (const x of state.tasks[id]) { total++; if (x.d) done++; }
+  return { total, done, open: total - done };
+}
+function taskTabHtml() {
+  const n = taskCounts().open;
+  return '<button class="tab' + (state.current === "taches" ? " active" : "") + '" onclick="selectTab(\'taches\')"><span>✅</span><span>Tâches</span>' + (n ? '<span class="badge">' + n + "</span>" : "") + "</button>";
+}
+function tasksPanel() {
+  const c = taskCounts();
+  let html = '<div class="p-head"><div class="p-ico" style="background:#1a3320">✅</div><div class="p-titles"><div class="p-name">Plan d\'action</div><div class="p-desc">Toutes les tâches des agents, au même endroit</div></div></div>';
+  if (!c.total) return html + '<div class="empty"><div class="big">📝</div>Aucune tâche pour l\'instant.<br>Lance les agents : chacun ajoute ses tâches ici.</div>';
+  html += '<div class="hint">' + c.done + " / " + c.total + " faites</div><div class=\"progress\"><div style=\"width:" + Math.round(c.done / c.total * 100) + '%"></div></div>';
+  html += '<div class="p-actions"><button class="btn" onclick="copyTasks()">📋 Copier la liste</button><button class="btn" onclick="clearDone()">🧹 Retirer les faites</button></div>';
+  for (const a of AGENTS) {
+    if (!(state.tasks[a.id] || []).length) continue;
+    html += '<div class="group-title"><span>' + a.icon + "</span><span>" + esc(a.name) + "</span></div>" + taskRows(a.id);
+  }
+  return html;
+}
+function toggleTask(id, i) {
+  const t = state.tasks[id] && state.tasks[id][i]; if (!t) return;
+  t.d = !t.d; persist(); renderTabs(); renderPanel();
+}
+function tasksText(id) {
+  const l = state.tasks[id] || [];
+  return l.length ? "\n\nTÂCHES :\n" + l.map(x => (x.d ? "[x] " : "[ ] ") + x.t).join("\n") : "";
+}
+async function copyTasks() {
+  const parts = AGENTS.filter(a => (state.tasks[a.id] || []).length).map(a => a.name.toUpperCase() + "\n" + state.tasks[a.id].map(x => (x.d ? "[x] " : "[ ] ") + x.t).join("\n"));
+  toast((await copyText(parts.join("\n\n"))) ? "Liste copiée ✓" : "Copie impossible");
+}
+function clearDone() {
+  for (const id in state.tasks) state.tasks[id] = state.tasks[id].filter(x => !x.d);
+  persist(); renderTabs(); renderPanel();
 }
 
 // ===== Démarrage =====
